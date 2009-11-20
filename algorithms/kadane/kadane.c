@@ -1,12 +1,4 @@
-#include<stdio.h>
-#include<stdlib.h>
-
-/* Max int possible. Be careful when using it... */
-#define INFINITY 0x7FFFFFFF 
-
-struct tuple{
-	int a, b, c, d, e;
-};
+#include"kadane.h"
 
 struct tuple kadane(int *a, int n){
 	/* Maximum subarray problem. Returns 
