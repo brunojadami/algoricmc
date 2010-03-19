@@ -16,7 +16,7 @@ using namespace std;
 const int VT = 100;
 /* Numero maximo de arestas no grafo. */
 const int AR = VT * VT;
-#define INFINITY 999999
+const int INFINITY = 999999;
 typedef int Weight;
 
 struct grafo{
@@ -39,6 +39,7 @@ struct grafo{
 	void aresta(int src, int dst, Weight p);
 	void print();
 	void dfs(int n);
+	void bfs(int n);
 	void dijkstra(int src);
 };
 
@@ -76,6 +77,26 @@ void grafo::dfs(int n){
 			dfs(dest[adj[n][i]]);
 }
 
+void grafo::bfs(int n){
+	/* Busca em largura.
+	 * Use busca.clear() e 
+	 * memset(vis, 0, sizeof(vis))
+	 * antes de chamar esse metodo.
+	 */
+	int i, atual;
+	queue<int> fila;
+	vis[n] = 1;
+	fila.push(n);
+	while(fila.empty() == 0){
+		atual = fila.front();
+		busca.push_back(atual);
+		fila.pop();
+		for(i = 0; i < nadj[atual]; i++)
+			if(vis[dest[adj[atual][i]]]++ == 0)
+				fila.push(dest[adj[atual][i]]);
+	}
+}
+
 void grafo::dijkstra(int src){
 	/* Algoritmo de Dijkstra.
 	 * Use memset(vis, 0, sizeof(vis))
@@ -105,16 +126,16 @@ void grafo::dijkstra(int src){
 	pilha.push(make_pair(dist[src] = 0, src));
 	while(!pilha.empty()){
 		i = pilha.top().second;
-		/* Este if faz a func retornar caso a
-		 * distancia ateh o vertice de destino
-		 * jah esteja calculada. 
+		/* Este if faz a func retornar assim
+		 * que a distancia ateh o vertice
+		 * destino seja calculada. 
 		 *
 		 * Se tirar este if, a func calcula o 
 		 * caminho minimo ateh cada vertice.
 		 * Apague tb o parametro da func.
 		 */ 
-		//if(i == dst)
-		//	return;
+		/*if(i == dst)
+			return;*/
 		pilha.pop();
 		if(vis[i] != 0)
 			continue;
