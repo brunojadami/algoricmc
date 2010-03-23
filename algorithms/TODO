@@ -1,0 +1,3 @@
+Alterar o Bellman-Ford para que pare de executar se nenhuma aresta for relaxada.
+
+Implementar o Kadane para matrizes.
