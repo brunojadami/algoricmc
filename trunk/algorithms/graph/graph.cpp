@@ -16,7 +16,9 @@ using namespace std;
 const int VT = 100;
 /* Numero maximo de arestas no grafo. */
 const int AR = VT * VT;
-const int INFINITY = 999999;
+/* Cuidado para naum dar overflow no valor de 
+ * infinito. */
+const int INFINITY = 99999;
 typedef int Weight;
 
 struct grafo{
@@ -28,7 +30,7 @@ struct grafo{
 	 * numero de vertices no grafo e numero
 	 * de arestas no grafo. */
 	int nadj[VT], nvt, nar, vis[VT];
-	/* Vetores usados pelo Dijkstra. */
+	/* Vetores usados por Dijkstra e Bellman-Ford. */
 	int dist[VT], prev[VT];
 	/* Peso das arestas. */
 	Weight peso[AR];
@@ -41,6 +43,7 @@ struct grafo{
 	void dfs(int n);
 	void bfs(int n);
 	void dijkstra(int src);
+	int bellman_ford(int src);
 };
 
 void grafo::inic(int n = 0){
@@ -151,4 +154,41 @@ void grafo::dijkstra(int src){
 			}
 		}
 	}
+}
+
+int grafo::bellman_ford(int src){
+	/* Algoritmo de Belma-Ford.
+	 * Retorna 1 se houver um ciclo negativo no grafo.
+	 */
+	int i, u, v, tmp, j;
+	for(i = 0; i < nvt; i++){
+		dist[i] = INFINITY;
+		prev[i] = -1;
+	}
+	dist[src] = 0;
+	/* Relaxa as arestas nvt - 1 vezes, pois esse
+	 * eh o tamanho maximo de um caminho simples pelo grafo.
+	 */ 
+	for(i = 1; i < nvt; i++){
+		for(u = 0; u < nvt; u++)
+			for(v = 0; v < nadj[u]; v++){
+				j = adj[u][v];
+				tmp = dist[u] + peso[j];
+				if(tmp < dist[dest[j]]){
+					dist[dest[j]] = tmp;
+					prev[dest[j]] = u;
+				}
+			}
+	}
+	/* Verifica se ha ciclo negativo. Esse teste eh mais 
+	 * uma iteracaum do teste acima, pode ser copiado
+	 * e colado.
+	 */ 
+	for(u = 0; u < nvt; u++)
+		for(v = 0; v < nadj[u]; v++){
+			tmp = dist[u] + peso[j = adj[u][v]];
+			if(tmp < dist[dest[j]])
+				return 1;
+		}
+	return 0;
 }
