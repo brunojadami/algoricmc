@@ -1,0 +1,29 @@
+Este arquivo contem algumas coisas relacionadas a grafos e a TAD aqui presente.
+
+Cuidados com a TAD:
+
+* Cuidado com o número máximo de vértices permitidos pelo grafo. Talvez seja
+necessário alocar memória dinamicamente para o grafo.
+
+* Cuidado com a "matriz de adjacência" adj[][]. Ela funciona bem para grafos
+normais, porém pode não funcionar para grafos com várias arestas repetidas ( mas
+com pesos diferentes ), pois o numero de arestas nesses grafos pode exceder a capacidade
+de armazenamento. Talvez isso não gere um RE, mas pode ser que uma aresta seja inserida
+em um lugar errôneo. Para remediar isso, use vectors.
+
+Sobre os algoritmos:
+
+* O valor de infinito usado por Dijkstra e Bellman-Ford serve como um limitante superior
+das distâncias. Em problemas que especificam que certas distâncias não podem ser maiores 
+que um dado valor, basta alterar o valor de infinito. Isso serve sempre para Dijkstra.
+Para Bellman-Ford, talvez não seja verdade. Uma aresta com peso negativo pode fazer com
+que o esquema acima dê errado. O problema XYZZY tinha esse problema. Porém, algumas alterações
+básicas na TAD proporcionaram um ACCEPTED:
+
+	1 : Não relaxar arestas que partem de um vértice que não pode ser alcançado ( ou seja, se o 
+	vértice tem distância infinita ).
+
+	2 : Alterar a ordem em que o Bellman-Ford relaxa as arestas. Isso é muito interessante, pois 
+	o algoritmo não depende da ordem em que as arestas são relaxadas, por isso podemos definir uma
+	ordem para atender às nossas necessidades. No caso desse problema, uma busca em largura 
+	é executada antes, e as arestas são relaxadas de acordo com o resultado da busca.
