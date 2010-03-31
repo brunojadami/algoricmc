@@ -118,7 +118,7 @@ void grafo::dijkstra(int src){
 	 * 4      insert u at the beginning of S
 	 * 5      u := previous[u]
 	 * 
-	 * */
+	 */
 	int i, v, j;
 	Weight tmp;
 	for(i = 0; i < nvt; i++){
@@ -129,7 +129,8 @@ void grafo::dijkstra(int src){
 	pilha.push(make_pair(dist[src] = 0, src));
 	while(!pilha.empty()){
 		i = pilha.top().second;
-		/* Este if faz a func retornar assim
+		/* ======================================================
+		 * Este if faz a func retornar assim
 		 * que a distancia ateh o vertice
 		 * destino seja calculada. 
 		 *
@@ -137,8 +138,10 @@ void grafo::dijkstra(int src){
 		 * caminho minimo ateh cada vertice.
 		 * Apague tb o parametro da func.
 		 */ 
-		/*if(i == dst)
-			return;*/
+		/* if(i == dst)
+		   return;
+		   ======================================================
+		   */
 		pilha.pop();
 		if(vis[i] != 0)
 			continue;
@@ -160,7 +163,7 @@ int grafo::bellman_ford(int src){
 	/* Algoritmo de Belma-Ford.
 	 * Retorna 1 se houver um ciclo negativo no grafo.
 	 */
-	int i, u, v, tmp, j;
+	int i, u, v, tmp, j, stop = 0;
 	for(i = 0; i < nvt; i++){
 		dist[i] = INFINITY;
 		prev[i] = -1;
@@ -168,13 +171,17 @@ int grafo::bellman_ford(int src){
 	dist[src] = 0;
 	/* Relaxa as arestas nvt - 1 vezes, pois esse
 	 * eh o tamanho maximo de um caminho simples pelo grafo.
+	 * A variavel stop eh usada pra sair do for caso nenhuma
+	 * aresta seja relaxada. Eh apenas uma otimizacaum.
 	 */ 
-	for(i = 1; i < nvt; i++){
+	for(i = 1; i < nvt && (stop == 0); i++){
+		stop = 1;
 		for(u = 0; u < nvt; u++)
 			for(v = 0; v < nadj[u]; v++){
 				j = adj[u][v];
 				tmp = dist[u] + peso[j];
 				if(tmp < dist[dest[j]]){
+					stop = 0;
 					dist[dest[j]] = tmp;
 					prev[dest[j]] = u;
 				}
