@@ -12,8 +12,8 @@ using namespace std;
  *
  * CUIDADO COM SEU TAMANHO, POIS PODE ESTOURAR A 
  * MEMORIA ESTATICA. SE FOR O CASO, USE PONTEIROS.
- * */
-const int VT = 100;
+ */
+const int VT = 10;
 /* Numero maximo de arestas no grafo. */
 const int AR = VT * VT;
 /* Cuidado para naum dar overflow no valor de 
@@ -24,6 +24,10 @@ typedef int Weight;
 struct grafo{
 	/* Vertices de destino. */
 	int dest[AR];
+	/* Fluxo nas arestas e capacidade.
+	 * M eh o vetor usado na busca em largura para achar
+	 * o fluxo minimo do caminho atual. */ 
+	int fluxo[AR], cap[AR], M[VT];
 	/* Especie de matriz de adjacencia. */
 	int adj[VT][VT];
 	/* Numero de arestas saindo de cada vertice,
@@ -34,17 +38,33 @@ struct grafo{
 	int dist[VT], prev[VT];
 	/* Peso das arestas. */
 	Weight peso[AR];
-	/* Armazena o resultado de buscas. */
+	/* Armazena o resultado de buscas e indica os predecessores 
+	 * de cada vertice em uma busca. */
 	vector<int> busca;
+	int prev_busca[VT], prev_aresta[VT];
 	
+	/* Metodos. Como regra geral, os vetores vis e prev_busca e
+	 * o vector busca devem ser limpados antes de uma chamada
+	 * para os metodos.
+	 *
+	 * dijkstra e bellman_ford jah "limpam" os vetores prev e
+	 * dist.
+	 */ 
 	void inic(int n);
-	void aresta(int src, int dst, Weight p);
+	void aresta(int src, int dst, Weight p, int cap);
 	void print();
 	void dfs(int n);
 	void bfs(int n);
 	void dijkstra(int src);
 	int bellman_ford(int src);
+	int edmonds_karp(int src, int dst);
+	int bfs_fluxo(int src, int dst);
+	int inverso(int v);
 };
+
+int grafo::inverso(int v){
+	return (v ^ 1);
+}
 
 void grafo::inic(int n = 0){
 	memset(nadj, 0, sizeof(nadj));
@@ -52,10 +72,19 @@ void grafo::inic(int n = 0){
 	nar = 0;
 }
 
-void grafo::aresta(int src, int dst, Weight p = 0){
+void grafo::aresta(int src, int dst, Weight p = 0, int c = 0){
 	adj[src][nadj[src]++] = nar;
 	peso[nar] = p;
+	cap[nar] = c;
 	dest[nar++] = dst;
+
+	/* Parte abaixo eh para fluxos. */
+	/*
+	   adj[dst][nadj[dst]++] = nar;
+	   peso[nar] = p;
+	   cap[nar] = 0;
+	   dest[nar++] = src;
+	   */
 }
 
 void grafo::print(){
@@ -68,25 +97,22 @@ void grafo::print(){
 }
 
 void grafo::dfs(int n){
-	/* Busca em profundidade.
-	 * Use busca.clear() e
-	 * memset(vis, 0, sizeof(vis))
-	 * antes de chamar esse metodo.
-	 */ 
+	/* Busca em profundidade. */
+	int i, j;
 	vis[n] = 1;
 	busca.push_back(n);
-	for(int i = 0; i < nadj[n]; i++)
-		if(vis[dest[adj[n][i]]] == 0)
-			dfs(dest[adj[n][i]]);
+	for(i = 0; i < nadj[n]; i++){
+		j = dest[adj[n][i]];
+		if(vis[j] == 0){
+			prev_busca[j] = n;
+			dfs(j);
+		}
+	}
 }
 
 void grafo::bfs(int n){
-	/* Busca em largura.
-	 * Use busca.clear() e 
-	 * memset(vis, 0, sizeof(vis))
-	 * antes de chamar esse metodo.
-	 */
-	int i, atual;
+	/* Busca em largura. */
+	int i, j, atual;
 	queue<int> fila;
 	vis[n] = 1;
 	fila.push(n);
@@ -94,16 +120,52 @@ void grafo::bfs(int n){
 		atual = fila.front();
 		busca.push_back(atual);
 		fila.pop();
-		for(i = 0; i < nadj[atual]; i++)
-			if(vis[dest[adj[atual][i]]]++ == 0)
-				fila.push(dest[adj[atual][i]]);
+		for(i = 0; i < nadj[atual]; i++){
+			j = dest[adj[atual][i]];
+			if(vis[j]++ == 0){
+				prev_busca[j] = atual;
+				fila.push(j);
+			}
+		}
 	}
+}
+
+int grafo::bfs_fluxo(int src, int dst){
+	/* Busca em largura, versao
+	 * para algoritmos de fluxo.
+	 */ 
+	int i, j, atual;
+	queue<int> fila;
+	int c_tmp, tmp;
+	prev_busca[dst] = -1;
+	M[src] = INFINITY;
+	for(i = 0; i < nvt; i++)
+		vis[i] = 0;
+	vis[src] = 1;
+	fila.push(src);
+	while(fila.empty() == 0){
+		atual = fila.front();
+		busca.push_back(atual);
+		fila.pop();
+		for(i = 0; i < nadj[atual]; i++){
+			tmp = adj[atual][i], j = dest[tmp];
+			c_tmp = cap[tmp] - fluxo[tmp];
+			if(c_tmp > 0 && vis[j] == 0){
+				vis[j] = 1;
+				M[j] = (M[atual] > c_tmp ? c_tmp : M[atual]);
+				prev_busca[j] = atual;
+				prev_aresta[j] = tmp;
+				if(j == dst)
+					return M[dst];
+				fila.push(j);
+			}
+		}
+	}
+	return 0;
 }
 
 void grafo::dijkstra(int src){
 	/* Algoritmo de Dijkstra.
-	 * Use memset(vis, 0, sizeof(vis))
-	 * antes.
 	 * A func calcula o caminho de src
 	 * ateh cada vertice( ou ateh dst ser encontrado,
 	 * veja o comentario abaixo).
@@ -129,7 +191,7 @@ void grafo::dijkstra(int src){
 	pilha.push(make_pair(dist[src] = 0, src));
 	while(!pilha.empty()){
 		i = pilha.top().second;
-		/* ======================================================
+		/* =====================================
 		 * Este if faz a func retornar assim
 		 * que a distancia ateh o vertice
 		 * destino seja calculada. 
@@ -140,7 +202,7 @@ void grafo::dijkstra(int src){
 		 */ 
 		/* if(i == dst)
 		   return;
-		   ======================================================
+		   =====================================
 		   */
 		pilha.pop();
 		if(vis[i] != 0)
@@ -197,5 +259,39 @@ int grafo::bellman_ford(int src){
 			if(tmp < dist[dest[j]])
 				return 1;
 		}
+	return 0;
+}
+
+int grafo::edmonds_karp(int src, int dst){
+	/* Calcula fluxo maximo em O(VE^2). 
+	 * Limpa o vetor de fluxos antes*/
+	int flow = 0, m, j, i;
+	for(i = 0; i < nar; i++)
+		fluxo[i] = 0;
+	while(1){
+		m = bfs_fluxo(src, dst);
+		if(m == 0)
+			return flow;
+		flow += m;
+		j = dst;
+		while(j != src){
+			fluxo[prev_aresta[j]] += m;
+			fluxo[inverso(prev_aresta[j])] -= m;
+			j = prev_busca[j];
+		}
+	}
+}
+
+int main(){
+	grafo g;
+	int n, u, v, c, a;
+	cin >> n >> a;
+	g.inic(n);
+	for(int i = 0; i < a; i++){
+		cin >> u >> v >> c;
+		g.aresta(u,v,0,c);
+	}
+	cin >> u >> v;
+	cout << g.edmonds_karp(u,v) << endl;
 	return 0;
 }
