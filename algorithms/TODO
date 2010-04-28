@@ -1,1 +1,6 @@
 Implementar o Kadane para matrizes.
+
+Mudar a tad de grafos para usar vectors ao inves de arrays estaticos.
+Documentar melhor a tad de grafos, principalmente as funcoes novas, como fluxo e bfs para fluxo; alem disso, mudar algumas variaveis das funcoes de fluxos para uma maior utilidade da tad, sem ter q ficar gambiarrando.
+
+Mudar o tipo de dados da capacidade e do fluxo. Fazer como o peso das arestas, usar uns typedef para q modificacoes sejam mais faceis
