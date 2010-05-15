@@ -12,18 +12,18 @@ const int INFINITY = 99999;	/*!<Valor de infinito, usado por Dijkstra e outros a
 typedef int Weight;
 
 struct grafo{
-	int dest[AR];		/*!<Vértices de destino de uma dada aresta. */
-	int fluxo[AR];		/*!<Fluxo em cada aresta. */
-        int cap[AR];		/*!<Capacidade de cada aresta. */
+	vector<int> dest;	/*!<Nós de destino de uma dada aresta. */
+	vector<int> fluxo;	/*!<Fluxo em cada aresta. */
+        vector<int> cap;	/*!<Capacidade de cada aresta. */
         int M[VT];		/*!<Usado para achar a capacidade dos caminhos na busca em largura de fluxos. */
-	int adj[VT][VT];	/*!<Tipo de matriz de adjacência. Armazena o índice de cada aresta. */
+	vector<int> adj[VT];	/*!<Armazena o índice de cada aresta. */
 	int nadj[VT];		/*!<Número de arestas saindo de cada vértice. */
 	int nvt;		/*!<Número de vertices no grafo. Esse numero dever ser menor ou igual a VT. */
 	int nar;		/*!<Número de arestas no grafo. */
 	int vis[VT];		/*!<Nós visitados. 1 indica que o nó foi visitado e 0 indica que não foi nos métodos que o utilizam. */
 	int dist[VT];		/*!<Distância até cada vértice. Usado por Dijkstra e Bellman-Ford. */
 	int prev[VT];		/*!<Predecessor de cada vértice. Usado por Dijkstra e Bellman-Ford. */
-	Weight peso[AR];	/*!<Peso de cada aresta. */
+	vector<Weight> peso;	/*!<Peso de cada aresta. */
 	vector<int> busca;	/*!<Armazena o resultado de uma busca. */
 	int prev_busca[VT];	/*!<Predecessores de cada vértice em uma busca. */
 	int prev_aresta[VT];	/*!<Aresta usada para chegar aos vértices em uma busca. */
@@ -145,20 +145,29 @@ void grafo::inic(int n = 0){
 	memset(nadj, 0, sizeof(nadj));
 	nvt = n;
 	nar = 0;
+
+	peso.clear();
+	fluxo.clear();
+	dest.clear();
+	cap.clear();
+	for(int i = 0; i < n; i++)
+		adj[i].clear();
 }
 
 void grafo::aresta(int src, int dst, Weight p = 0, int c = 0){
-	adj[src][nadj[src]++] = nar;
-	peso[nar] = p;
-	cap[nar] = c;
-	dest[nar++] = dst;
+	adj[src].push_back(nar++);
+	nadj[src]++;
+	peso.push_back(p);
+	cap.push_back(c);
+	dest.push_back(dst);
 
 	/* Parte abaixo eh para fluxos. */
 	/*
-	   adj[dst][nadj[dst]++] = nar;
-	   peso[nar] = p;
-	   cap[nar] = 0;
-	   dest[nar++] = src;
+	   adj[dst].push_back(nar++);
+	   nadj[dst]++;
+	   peso.push_back(p);
+	   cap.push_back(c);
+	   dest.push_back(src);
 	   */
 }
 
