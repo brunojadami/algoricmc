@@ -1,7 +1,0 @@
-<map id="G" name="G">
-<area shape="rect" href="$structgrafo.html#ab6ebe34207a6e548bd74c80e1844f630" title="Insere uma aresta no grafo." alt="" coords="133,5,243,32"/>
-<area shape="rect" href="$structgrafo.html#aca7cabbd616b0a82a367a86d8e2f0fd2" title="Algoritmo de fluxo máximo de Edmonds&#45;Karp." alt="" coords="108,56,268,83"/>
-<area shape="rect" href="$structgrafo.html#aaeb29fff6b2f5df43d6cd809942a0642" title="Inicializador do grafo." alt="" coords="144,107,232,133"/>
-<area shape="rect" href="$structgrafo.html#a3ccc56906f3bde5fe92ddd4cdcde1cf4" title="Busca em largura, modificada para o ser usada por Edmonds&#45;Karp." alt="" coords="317,31,443,57"/>
-<area shape="rect" href="$structgrafo.html#a29123b27d787f47c2bd1905594a09903" title="Retorna a aresta inversa." alt="" coords="324,81,436,108"/>
-</map>
