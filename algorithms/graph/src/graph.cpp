@@ -97,7 +97,7 @@ struct grafo{
 	 * \param[out] prev Predecessor de cada nó.
 	 * \param[out] dist Distância até cada nó.
 	 * \return 1 se existe pelo menos um ciclo negativo no grafo, 0 caso contrário.
-	 * \note Limp automaticamente os vetores prev e busca antes de executar o algoritmo.
+	 * \note Limpa automaticamente os vetores prev e busca antes de executar o algoritmo.
 	 */  
 	int bellman_ford(int src);
 	/*! \brief Algoritmo de fluxo máximo de Edmonds-Karp.
