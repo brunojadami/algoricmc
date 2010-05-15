@@ -120,7 +120,7 @@ struct grafo{
 	 *
 	 * \param[in] src Nó origem.
 	 * \param[in] dst Nó destino.
-	 * \param[out] vis Nós que podem ser alcançados nesse grafo residual. Dtermina o Min-Cut ao final do
+	 * \param[out] vis Nós que podem ser alcançados nesse grafo residual. Determina o Min-Cut ao final do
 	 * algoritmo de Edmonds-Karp.
 	 * \return Capacidade do caminho encontrado.
 	 * \note Limpa o vetor vis. Atualiza os vetores prev_busca e prev_aresta para que sejam usados 
@@ -345,18 +345,4 @@ int grafo::edmonds_karp(int src, int dst){
 			j = prev_busca[j];
 		}
 	}
-}
-
-int main(){
-	grafo g;
-	int n, u, v, c, a;
-	cin >> n >> a;
-	g.inic(n);
-	for(int i = 0; i < a; i++){
-		cin >> u >> v >> c;
-		g.aresta(u,v,0,c);
-	}
-	cin >> u >> v;
-	cout << g.edmonds_karp(u,v) << endl;
-	return 0;
 }
