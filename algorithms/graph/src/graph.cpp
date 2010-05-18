@@ -44,8 +44,10 @@ struct grafo{
 	 *
 	 * \note Para usar os algoritmos de fluxo, é necessário descomentar uma parte 
 	 * do código desse método. A parte está indicada em seu código. Isso faz com que o grafo insira 
-	 * insira a aresta desejada e, além dela, uma aresta inversa, usada internamente pelos algoritmos de
-	 * fluxo, para que o fluxo "possa ser mandado de volta".
+	 * a aresta desejada e, além dela, uma aresta inversa, usada internamente pelos algoritmos de
+	 * fluxo, para que o fluxo "possa ser mandado de volta". Essa aresta tem capacidade 0. Para problemas
+	 * onde o grafo é não direcionado, o valor de sua capacidade pode ser alterado para a capacidade da aresta
+	 * normal, e, dessa forma, não é necessário fazer duas chamadas a este método na função main.
 	 */ 
 	void aresta(int src, int dst, Weight p, int c);
 	/*! \brief Imprime o grafo.
@@ -160,14 +162,16 @@ void grafo::aresta(int src, int dst, Weight p = 0, int c = 0){
 	peso.push_back(p);
 	cap.push_back(c);
 	dest.push_back(dst);
+	fluxo.push_back(0);
 
 	/* Parte abaixo eh para fluxos. */
 	/*
 	   adj[dst].push_back(nar++);
 	   nadj[dst]++;
 	   peso.push_back(p);
-	   cap.push_back(c);
+	   cap.push_back(0);
 	   dest.push_back(src);
+	   fluxo.push_back(0);
 	   */
 }
 
