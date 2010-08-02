@@ -1,55 +1,55 @@
+#include<string>
 #include<stdio.h>
 #include<string.h>
 #include<iostream>
 #include<vector>
 #include<utility>
 #include<queue>
+#include<algorithm>			// Possui a função min.
 using namespace std;
 
-const int VT = 10;		/*!<Numero máximo de vértices que o grafo pode comportar. Pode estourar a memoria estática. */
-const int AR = VT * VT;		/*!<Numero máximo de arestas que o grafo pode comportar. */
-const int INFINITY = 99999;	/*!<Valor de infinito, usado por Dijkstra e outros algoritmos. */
+const int MAX_NODES = 1000;		/*!<Numero máximo de nós que o Graph pode comportar. NOTA: Pode estourar a memoria estática. */
+const int INFINITY = 1000000000;	/*!<Valor de infinito, usado por Dijkstra e outros algoritmos. */
 typedef int Weight;
 
-struct grafo{
-	vector<int> dest;	/*!<Nós de destino de uma dada aresta. */
-	vector<int> fluxo;	/*!<Fluxo em cada aresta. */
-        vector<int> cap;	/*!<Capacidade de cada aresta. */
-        int M[VT];		/*!<Usado para achar a capacidade dos caminhos na busca em largura de fluxos. */
-	vector<int> adj[VT];	/*!<Armazena o índice de cada aresta. */
-	int nadj[VT];		/*!<Número de arestas saindo de cada vértice. */
-	int nvt;		/*!<Número de vertices no grafo. Esse numero dever ser menor ou igual a VT. */
-	int nar;		/*!<Número de arestas no grafo. */
-	int vis[VT];		/*!<Nós visitados. 1 indica que o nó foi visitado e 0 indica que não foi nos métodos que o utilizam. */
-	int dist[VT];		/*!<Distância até cada vértice. Usado por Dijkstra e Bellman-Ford. */
-	int prev[VT];		/*!<Predecessor de cada vértice. Usado por Dijkstra e Bellman-Ford. */
-	vector<Weight> peso;	/*!<Peso de cada aresta. */
-	vector<int> busca;	/*!<Armazena o resultado de uma busca. */
-	int prev_busca[VT];	/*!<Predecessores de cada vértice em uma busca. */
-	int prev_aresta[VT];	/*!<Aresta usada para chegar aos vértices em uma busca. */
+struct Graph{
+	vector<int> destinies;		/*!<Nós de destino de uma dada aresta. */
+	vector<int> flows;		/*!<Fluxo em cada aresta. */
+        vector<int> capacities;		/*!<Capacidade de cada aresta. */
+        int pathCapacities[MAX_NODES];	/*!<Usado para achar a capacidade dos caminhos na busca em largura de fluxos. */
+	vector<int> arcs[MAX_NODES];	/*!<Arestas de cada nó. Armazena o índice de cada aresta. */
+	int nNodes;			/*!<Número de vertices no Graph. Esse numero dever ser menor ou igual a MAX_NODES. */
+	int visited[MAX_NODES];		/*!<Nós visitados. 1 indica que o nó foi visitado, e 0 indica que não foi, nos métodos que o utilizam. */
+	int distances[MAX_NODES];	/*!<Distância até cada nó. Usado por Dijkstra e Bellman-Ford. */
+	vector<Weight> weights;		/*!<Peso de cada aresta. */
+	vector<int> searchResult;	/*!<Armazena o resultado de uma busca. */
+	int previousNodes[MAX_NODES];	/*!<Predecessores de cada nó. Usado pelas buscas e pelo dijkstra. */
+	int usedArcs[MAX_NODES];	/*!<Aresta usada para chegar aos nós em uma busca. Verifique previousNode antes de ler um valor daqui.*/
 
-	/*! \brief Inicializador do grafo.
+	/*! \brief Inicializador do Grafo.
 	 *
-	 * Após esse método ser executado, o grafo tem n nós e nenhuma aresta.
+	 * Limpa o grafo inteiro e cria um grafo com nNodes nós.
 	 *
-	 * \param[in] n Numero de vertices que o grafo tem. Deve ser menor ou igual a VT. Default 0.
+	 * \param[in] nNodes Numero de vertices que o Graph tem. Deve ser menor ou igual a MAX_NODES. Default 0.
 	 */ 
-	void inic(int n);
+	void initialize(int nNodes);
+
 	/*! \brief Insere uma aresta no grafo.
 	 *
-	 * \param[in] src Vértice origem.
-	 * \param[in] dst Vértice destino.
-	 * \param[in] p Peso da aresta. Default 0.
-	 * \param[in] c Capacidade da aresta. Default 0.
+	 * \param[in] srcNode Vértice origem.
+	 * \param[in] dstNode Vértice destino.
+	 * \param[in] weight Weight da aresta. Default 0.
+	 * \param[in] capacity Capacidade da aresta. Default 0.
 	 *
 	 * \note Para usar os algoritmos de fluxo, é necessário descomentar uma parte 
 	 * do código desse método. A parte está indicada em seu código. Isso faz com que o grafo insira 
 	 * a aresta desejada e, além dela, uma aresta inversa, usada internamente pelos algoritmos de
 	 * fluxo, para que o fluxo "possa ser mandado de volta". Essa aresta tem capacidade 0. Para problemas
-	 * onde o grafo é não direcionado, o valor de sua capacidade pode ser alterado para a capacidade da aresta
-	 * normal, e, dessa forma, não é necessário fazer duas chamadas a este método na função main.
+	 * onde o grafo NÃO é direcionado, não é preciso descomentar o código (só testei isso em alguns programas,
+	 * mas eles passaram).
 	 */ 
-	void aresta(int src, int dst, Weight p, int c);
+	void insertArc(int srcNode, int dstNode, Weight weight, int capacity);
+
 	/*! \brief Imprime o grafo.
 	 *
 	 * Imprime na forma {dst, p, c, f}, onde p é o peso da aresta, c, sua capacidade
@@ -59,303 +59,348 @@ struct grafo{
 	 * inseridas para fluxos ou não.
 	 */
 	void print();
+
 	/*! \brief Busca em profundidade.
 	 *
-	 * \param[in] src Nó inicial.
-	 * \param[out] busca Ordem em que os nós são visitados pela primeira vez.
-	 * \param[out] prev_busca Predecessor de cada nó.
-	 * \param[out] prev_aresta Aresta usada pelo predecessor de cada nó para chegar nele.
-	 * \param[out] vis Nós que foram visitados por essa busca.
-	 * \note Não limpa vis, prev_busca, prev_aresta e o vector busca internamente.
+	 * \param[in] srcNode Nó inicial.
+	 *
+	 * \param[out] searchResult Ordem em que os nós são visitados pela primeira vez. Não é inicializado internamente.
+	 * \param[out] previousNodes Predecessor de cada nó. Não é inicializado internamente.
+	 * \param[out] usedArcs Arestas usada pelo predecessor de cada nó para chegar nele. Não é inicializado internamente.
+	 * \param[out] visited Nós que foram visitados por essa busca. Não é inicializado internamente.
 	 */
-	void dfs(int src);
+	void dfs(int srcNode);
+
 	/*! \brief Busca em largura.
 	 *
 	 * Veja os comentários da busca em profundidade. Os mesmos se aplicam aqui.
+	 * Também implementa algumas funcionalidades usadas por edmondsKarp. Elas 
+	 * estão comentadas no código.
 	 *
-	 * \note Não limpa vis, prev_busca, prev_aresta e o vector busca internamente.
+	 * \param[in] dstNode Nó destino. Default -1 (nenhum nó destino, visita todos os nós).
+	 *
+	 * \return Usado apenas pelo edmondsKarp. Retorna o valor da menor capacidade do caminho achado.
+	 *
+	 * \note Não inicializa "visited", "previousNodes", "usedArcs" e nem "searchResult" internamente.
+	 * edmondsKarp faz as inicializações necessárias antes de chamar este método.
 	 */ 
-	void bfs(int n);
+	int bfs(int srcNode, int dstNode);
+
 	/*! \brief Algoritmo de Dijkstra.
 	 *
-	 * O algoritmo para quando encontra a menor distância até o nó destino,
-	 * ou acha a menor distância até cada nó, caso dst == -1.
+	 * Se ("dstNode" == -1), então o algoritmo para após ter calculado a distância 
+	 * mínima do nó origem para cada nó; caso contrário, o algoritmo retorna assim que achar a
+	 * distância mínima até o nó destino. 
 	 *
-	 * \param[in] src Nó origem.
-	 * \param[in] dst Nó destino. Default -1.
-	 * \param[out] prev Predecessor de cada nó. -1 indica que não existe predecessor.
-	 * \param[out] vis Nós visitados.
-	 * \param[out] dist Distância total até cada nó, partindo-se de src.
-	 * \note Não limpa o vetor vis, e limpa prev e dist antes de executar o algoritmo.
-	 * \todo Fazer o método gravar as arestas usadas no vetor prev_aresta.
+	 * \param[in] srcNode Nó origem.
+	 * \param[in] dstNode Nó destino. Default -1.
+	 *
+	 * \param[out] previousNodes Predecessor de cada nó. -1 indica que não existe predecessor.
+	 * \param[out] usedArcs Arestas usada pelo predecessor de cada nó para chegar nele.
+	 * \param[out] visited Nós visitados. Não é inicializado internamente.
+	 * \param[out] distances Distância total até cada nó, partindo-se de srcNode.
+	 *
+	 * \note Inicializa "previousNodes" e "distances" internamente antes de executar o algoritmo.
 	 */ 
-	void dijkstra(int src, int dst);
+	void dijkstra(int srcNode, int dstNode);
+
 	/*! \brief Bellman-Ford.
 	 *
 	 * Acha a menor distância até cada nó. Funciona em grafos com
 	 * arestas cujos pesos são negativos.
 	 *
-	 * \param[in] src Nó origem.
-	 * \param[out] prev Predecessor de cada nó.
-	 * \param[out] dist Distância até cada nó.
+	 * \param[in] srcNode Nó origem.
+	 *
+	 * \param[out] previousNodes Predecessor de cada nó.
+	 * \param[out] usedArcs Arestas usada pelo predecessor de cada nó para chegar nele.
+	 * \param[out] distances Distância até cada nó.
+	 *
 	 * \return 1 se existe pelo menos um ciclo negativo no grafo, 0 caso contrário.
-	 * \note Limpa automaticamente os vetores prev e busca antes de executar o algoritmo.
+	 *
+	 * \note Inicializa "previousNodes" e "distances" antes de executar.
 	 */  
-	int bellman_ford(int src);
+	int bellmanFord(int srcNode);
+
 	/*! \brief Algoritmo de fluxo máximo de Edmonds-Karp.
 	 *
-	 * Acha o fluxo máximo do grafo. Para isso, realiza várias buscas em largura
+	 * Acha o fluxo máximo no grafo. Para isso, realiza várias buscas em largura
 	 * para encontrar caminhos que adicionam fluxo.
 	 *
-	 * \param[in] src Nó origem.
-	 * \param[in] dst Nó final.
-	 * \param[out] fluxo Fluxo passando em cada aresta.
-	 * \param[out] vis Determina o Min-Cut do grafo.
-	 * \return Valor do fluxo máximo no grafo.
-	 * \note O método limpa o vetor fluxo antes de executar o algoritmo.
-	 * Utiliza os vetores prev_busca e prev_aresta, mas como parte da implementação, por 
-	 * isso não são marcados como parâmetros de saída aqui.
-	 * vis não é alterado por esse método diretamente, e sim pela busca para fluxos.
-	 */
-	int edmonds_karp(int src, int dst);
-	/*! \brief Busca em largura, modificada para o ser usada por Edmonds-Karp.
+	 * \param[in] srcNode Nó origem.
+	 * \param[in] dstNode Nó final.
 	 *
-	 * \param[in] src Nó origem.
-	 * \param[in] dst Nó destino.
-	 * \param[out] vis Nós que podem ser alcançados nesse grafo residual. Determina o Min-Cut ao final do
-	 * algoritmo de Edmonds-Karp.
-	 * \return Capacidade do caminho encontrado.
-	 * \note Limpa o vetor vis. Atualiza os vetores prev_busca e prev_aresta para que sejam usados 
-	 * por Edmonds-Karp. Esses vetores não precisam ser limpados.
-	 */ 
-	int bfs_fluxo(int src, int dst);
+	 * \param[out] flows Fluxo passando em cada aresta.
+	 * \param[out] visited Determina o Min-Cut.
+	 * \param[out] previousNodes É usada pela busca em largura.
+	 * \prama[out] usedArcs É usada pela busca em largura.
+	 *
+	 * \return Valor do fluxo máximo no grafo.
+	 *
+	 * \note O método já faz as inicializações necessárias antes de 
+	 * executar o algoritmo. Não esqueça de descomentar as linhas de código da busca 
+	 * em largura e da inserção de arestas para usar esse método.
+	 */
+	int edmondsKarp(int srcNode, int dstNode);
+
 	/*! \brief Retorna a aresta inversa.
 	 *
 	 * Método usado por algoritmos de fluxo. Retorna a aresta inversa de uma dada aresta.
 	 *
-	 * \param[in] a Índice de uma aresta.
+	 * \param[in] arc Índice de uma aresta.
 	 * \return Índice da aresta inversa.
 	 */ 
-	inline int inverso(int a);
+	inline int reverse(int arc);
 };
 
-inline int grafo::inverso(int a){
-	return (a ^ 1);
+inline int Graph::reverse(int arc){
+	return (arc ^ 1);
 }
 
-void grafo::inic(int n = 0){
-	memset(nadj, 0, sizeof(nadj));
-	nvt = n;
-	nar = 0;
-
-	peso.clear();
-	fluxo.clear();
-	dest.clear();
-	cap.clear();
-	for(int i = 0; i < n; i++)
-		adj[i].clear();
+void Graph::initialize(int nNodes = 0){
+	this->nNodes = nNodes;
+	weights.clear();
+	flows.clear();
+	destinies.clear();
+	capacities.clear();
+	for(int i = 0; i < nNodes; i++)
+		arcs[i].clear();
 }
 
-void grafo::aresta(int src, int dst, Weight p = 0, int c = 0){
-	adj[src].push_back(nar++);
-	nadj[src]++;
-	peso.push_back(p);
-	cap.push_back(c);
-	dest.push_back(dst);
-	fluxo.push_back(0);
+void Graph::insertArc(int srcNode, int dstNode, Weight weight = 0, int capacity = 0){
+	arcs[srcNode].push_back(destinies.size());
+	weights.push_back(weight);
+	capacities.push_back(capacity);
+	destinies.push_back(dstNode);
+	flows.push_back(0);
 
-	/* Parte abaixo eh para fluxos. */
-	/*
-	   adj[dst].push_back(nar++);
-	   nadj[dst]++;
-	   peso.push_back(p);
-	   cap.push_back(0);
-	   dest.push_back(src);
-	   fluxo.push_back(0);
-	   */
+	// A parte abaixo é para fluxos.
+	//
+	// arcs[dstNode].push_back(destinies.size());
+	// weights.push_back(weight);
+	// capacities.push_back(0);
+	// destinies.push_back(srcNode);
+	// flows.push_back(0);
 }
 
-void grafo::print(){
-	for(int i = 0; i < nvt; i++){
+void Graph::print(){
+	for(int i = 0; i < nNodes; i++){
 		cout << i << " : ";
-		for(int j = 0; j < nadj[i]; j++)
-			cout << '(' << dest[adj[i][j]] << ',' << peso[adj[i][j]] << ") ";
+		for(int j = 0; j < arcs[i].size(); j++)
+			cout << '(' << destinies[arcs[i][j]] << ',' << weights[arcs[i][j]] << ',' << capacities[arcs[i][j]] << ") ";
 		cout << endl;
 	}
 }
 
-void grafo::dfs(int src){
-	/* Busca em profundidade. */
-	int j;			// j = dest[adj[src][i]]
+void Graph::dfs(int srcNode){
+	visited[srcNode] = 1;
+	searchResult.push_back(srcNode);
 
-	vis[src] = 1;
-	busca.push_back(src);
-	for(int i = 0; i < nadj[src]; i++){
-		j = dest[adj[src][i]];
-		if(vis[j] == 0){
-			prev_busca[j] = src;
-			prev_aresta[j] = adj[src][i];
-			dfs(j);
+	for(int i = 0; i < arcs[srcNode].size(); i++){
+		int arc = arcs[srcNode][i];
+	        int neighbourNode = destinies[arc];
+
+		bool isVisited( 0 != visited[neighbourNode] );
+		if( !isVisited ){
+			previousNodes[neighbourNode] = srcNode;
+			usedArcs[neighbourNode] = arc;
+			dfs(neighbourNode);
 		}
 	}
 }
 
-void grafo::bfs(int src){
-	/* Busca em largura. */
-	int j, atual;		// atual eh o vertice que foi retirado da pilha, j eh dest[adj[atual][i]]
-	queue<int> fila;
+int Graph::bfs(int srcNode, int dstNode = -1){
+	visited[srcNode] = 1;
 
-	vis[src] = 1;
-	fila.push(src);
-	while(fila.empty() == 0){
-		atual = fila.front();
-		busca.push_back(atual);
-		fila.pop();
-		for(int i = 0; i < nadj[atual]; i++){
-			j = dest[adj[atual][i]];
-			if(vis[j] == 0){
-				vis[j]++;
-				prev_busca[j] = atual;
-				prev_aresta[j] = adj[atual][i];
-				fila.push(j);
-			}
-		}
-	}
-}
-
-int grafo::bfs_fluxo(int src, int dst){
-	/* Busca em largura, versao para algoritmos de fluxo. */ 
-	int i, j, atual;
 	queue<int> fila;
-	int c_tmp, tmp;
-	prev_busca[dst] = -1;
-	M[src] = INFINITY;
-	for(i = 0; i < nvt; i++)
-		vis[i] = 0;
-	vis[src] = 1;
-	fila.push(src);
-	while(fila.empty() == 0){
-		atual = fila.front();
+	fila.push(srcNode);
+	while( !fila.empty() ){
+		int currentNode = fila.front();
 		fila.pop();
-		for(i = 0; i < nadj[atual]; i++){
-			tmp = adj[atual][i], j = dest[tmp];
-			c_tmp = cap[tmp] - fluxo[tmp];
-			if(c_tmp > 0 && vis[j] == 0){
-				vis[j] = 1;
-				M[j] = (M[atual] > c_tmp ? c_tmp : M[atual]);
-				prev_busca[j] = atual;
-				prev_aresta[j] = tmp;
-				if(j == dst)
-					return M[dst];
-				fila.push(j);
+		searchResult.push_back(currentNode);
+		for(int i = 0; i < arcs[currentNode].size(); i++){
+			int arc = arcs[currentNode][i];
+			int neighbourNode = destinies[arc];
+			// int residualCapacity = capacities[arc] - flows[arc];
+
+			// bool hasCapacity( residualCapacity > 0 );
+			bool isVisited( 0 != visited[neighbourNode] );
+			if( !isVisited ){	// Adicione um "&& hasCapacity" nesse if.
+				visited[neighbourNode] = 1;
+				previousNodes[neighbourNode] = currentNode;
+				usedArcs[neighbourNode] = arc;
+
+				// pathCapacities[neighbourNode] = min(pathCapacities[currentNode], residualCapacity);
+				
+			       	if(neighbourNode == dstNode)
+					return pathCapacities[dstNode];
+				fila.push(neighbourNode);
 			}
 		}
 	}
 	return 0;
 }
 
-void grafo::dijkstra(int src, int dst = -1){
-	/* Algoritmo de Dijkstra.
-	 * A func calcula o caminho de src ateh cada vertice (ou ateh dst ser encontrado, veja o
-	 * comentario abaixo). O predecessor de cada vertice fica armazenado no vetor prev. Para
-	 * ver o caminho de src ateh dst, faca isso:
-	 * 
-	 * 1  S := empty sequence
-	 * 2  u := target
-	 * 3  while previous[u] is defined:
-	 * 4      insert u at the beginning of S
-	 * 5      u := previous[u]
-	 */
-	int i;		// vertice destino, que foi retirado da pilha
-        int v, j;	// variaveis tipo "macro", para evitar muita digitacao
-	Weight tmp;	
-	priority_queue<pair<Weight, int> > pilha;
-
-	for(i = 0; i < nvt; i++){
-		dist[i] = INFINITY;
-		prev[i] = -1;
+void Graph::dijkstra(int srcNode, int dstNode = -1){
+	for(int i = 0; i < nNodes; i++){
+		distances[i] = INFINITY;
+		previousNodes[i] = -1;
 	}
-	pilha.push(make_pair(dist[src] = 0, src));
-	while(!pilha.empty()){
-		i = pilha.top().second;
 
-		/* Retorna caso dst seja alcançado. */
-		if(i == dst)
+	priority_queue<pair<Weight, int> > fila;
+	fila.push(make_pair(distances[srcNode] = 0, srcNode));
+	while( !fila.empty() ){
+		int currentNode = fila.top().second;
+		fila.pop();
+
+		if(currentNode == dstNode)
 			return;
 
-		pilha.pop();
-		if(vis[i] != 0)
+		bool isVisited( 0 != visited[currentNode] );
+		if( isVisited )
 			continue;
-		vis[i] = 1;
-		for(int k = 0; k < nadj[i]; k++){
-			v = adj[i][k]; j = dest[v];
-			tmp = dist[i] + peso[v];
-			if(tmp < dist[j]){
-				dist[j] = tmp;
-				prev[j] = i;
-				if(vis[j] == 0)
-					pilha.push(make_pair( -dist[j], j));
+		visited[currentNode] = 1;
+
+		for(int i = 0; i < arcs[currentNode].size(); i++){
+			int arc = arcs[currentNode][i];
+		       	int neighbourNode = destinies[arc];
+
+			Weight newDistance = distances[currentNode] + weights[arc];
+			if( newDistance < distances[neighbourNode] ){
+				distances[neighbourNode] = newDistance;
+				previousNodes[neighbourNode] = currentNode;
+				usedArcs[neighbourNode] = arc;
+
+				isVisited = ( 0 != visited[neighbourNode] );
+				if( !isVisited )
+					fila.push(make_pair( -distances[neighbourNode], neighbourNode));
 			}
 		}
 	}
 }
 
-int grafo::bellman_ford(int src){
-	/* Algoritmo de Belma-Ford.
-	 * Retorna 1 se houver um ciclo negativo no grafo.
-	 */
-	int stop = 0;		// usada para otimizar o algoritmo 
-	int j, tmp;		// variaveis tipo "macro"
-
-	for(int i = 0; i < nvt; i++){
-		dist[i] = INFINITY;
-		prev[i] = -1;
+int Graph::bellmanFord(int srcNode){		
+	for(int i = 0; i < nNodes; i++){
+		distances[i] = INFINITY;
+		previousNodes[i] = -1;
 	}
-	dist[src] = 0;
-	/* Relaxa as arestas nvt - 1 vezes, pois esse eh o tamanho maximo de um caminho simples pelo
-	 * grafo. A variavel stop eh usada pra sair do for caso nenhuma aresta seja relaxada. Eh
-	 * apenas uma otimizacaum.
-	 */ 
-	for(int i = 1; i < nvt && (stop == 0); i++){
-		stop = 1;
-		for(int u = 0; u < nvt; u++)
-			for(int v = 0; v < nadj[u]; v++){
-				j = adj[u][v];
-				tmp = dist[u] + peso[j];
-				if(tmp < dist[dest[j]]){
-					stop = 0;
-					dist[dest[j]] = tmp;
-					prev[dest[j]] = u;
+	distances[srcNode] = 0;
+
+	// Relaxa as arestas (nNodes - 1) vezes.
+	for(int relaxCounter = 1; relaxCounter < nNodes; relaxCounter++){
+		bool canStop = true;			// Usada para ver se alguma aresta foi relaxada.
+		for(int i = 0; i < nNodes; i++){	// i faz o papel de "currentNode" aqui.
+			for(int j = 0; j < arcs[i].size(); j++){
+				int arc = arcs[i][j];
+				int dstNode = destinies[arc];
+				Weight newDistance = distances[i] + weights[arc];
+				if(newDistance < distances[dstNode]){
+					canStop = false;
+					distances[dstNode] = newDistance;
+					previousNodes[dstNode] = i;
+					usedArcs[dstNode] = arc;
 				}
 			}
+		}
+
+		if( canStop )				// Se nenhuma aresta foi relaxada, podemos parar.
+			return 0;
 	}
-	/* Verifica se ha ciclo negativo. */
-	for(int u = 0; u < nvt; u++)
-		for(int v = 0; v < nadj[u]; v++){
-			tmp = dist[u] + peso[j = adj[u][v]];
-			if(tmp < dist[dest[j]])
+
+	// Verifica se há ciclo negativo.
+	for(int i = 0; i < nNodes; i++){		// i faz o papel de "currentNode" aqui.
+		for(int j = 0; j < arcs[i].size(); j++){
+			int arc = arcs[i][j];
+			int dstNode = destinies[arc];
+			Weight newDistance = distances[i] + weights[arc];
+			if(newDistance < distances[dstNode])
 				return 1;
 		}
+	}
+
 	return 0;
 }
 
-int grafo::edmonds_karp(int src, int dst){
-	/* Calcula fluxo maximo em O(VE^2). 
-	 * Limpa o vetor de fluxos antes*/
-	int flow = 0, min, j;
+int Graph::edmondsKarp(int srcNode, int dstNode){	
+	for(int i = 0; i < destinies.size(); i++)
+		flows[i] = 0;
 
-	for(int i = 0; i < nar; i++)
-		fluxo[i] = 0;
+	int maxFlow = 0;
 	while(1){
-		min = bfs_fluxo(src, dst);
-		if(min == 0)
-			return flow;
-		flow += min;
-		j = dst;
-		while(j != src){
-			fluxo[prev_aresta[j]] += min;
-			fluxo[inverso(prev_aresta[j])] -= min;
-			j = prev_busca[j];
+		// Faz algumas inicializações e chama uma busca em
+		// largura para achar a capacidade mínima de um
+		// possível caminho.
+		for(int i = 0; i < nNodes; i++)
+			visited[i] = 0;
+		previousNodes[dstNode] = -1;
+		pathCapacities[srcNode] = INFINITY;
+		int minPathCapacity = bfs(srcNode, dstNode);
+
+		// Atualiza o fluxo máximo ou retorna.
+		if(0 == minPathCapacity)
+			return maxFlow;
+		maxFlow += minPathCapacity;
+
+		// Atualiza o fluxo nas arestas do caminho achado.
+		int j = dstNode;
+		while(j != srcNode){
+			flows[usedArcs[j]] += minPathCapacity;
+			flows[reverse(usedArcs[j])] -= minPathCapacity;
+
+			j = previousNodes[j];
 		}
 	}
 }
+
+///////////////////////////////////////////
+////// Alguns exemplos do uso da TAD //////
+////// Não esqueça de ajustar        //////
+////// MAX_NODES e INFINITY. 	     //////
+///////////////////////////////////////////
+
+// UVA 558 Wormholes - Rank 382 - Bellman-Ford 
+/*
+int main(){
+	Graph graph;
+	int c, n, m, t;
+	scanf("%d", &c);
+	for(int i = 0; i < c; i++){
+		scanf("%d%d", &n, &m);
+		graph.initialize(n);
+		for(int i = 0; i < m; i++){
+			int x, y, t;
+			scanf("%d%d%d", &x, &y, &t);
+			graph.insertArc(x, y, t);
+		}
+		puts(graph.bellmanFord(0) == 0 ? "not possible" : "possible");
+	}			
+	return 0;
+}
+*/
+
+// UVA 820 Internet Bandwidth - Rank 93 - Max-flow
+// Esse problema é foda, God pegou rank 6 xD.
+// Pra rodar esse exemplo, tem que descomentar as linhas lah na busca
+// em profundidade. Como o grafo desse problema não é direcionado, eu não
+// descomentei as linhas da insertArc e ele passou no UVA, mas não sei se isso
+// funciona sempre. Na dúvida, descomente lá; apesar de que isso vai fazer com que
+// o grafo tenha o dobro de arestas.
+//
+// Para dígrafos, é preciso descomentar a insertArc.
+/*
+int main(){
+	Graph graph;
+	int n, s, t, c, caso = 1;
+	while(1){
+		scanf("%d%d%d%d", &n, &s, &t, &c);
+		if(n == 0) return 0;
+		graph.initialize(n+1);
+		for(int i = 0; i < c; i++){
+			int src, dst, cap;
+			scanf("%d%d%d", &src, &dst, &cap);
+			graph.insertArc(src, dst, 0, cap);	// o 0 aqui eh do campo peso da aresta
+			graph.insertArc(dst, src, 0, cap);
+		}
+		printf("Network %d\nThe bandwidth is %d.\n\n", caso++, graph.edmondsKarp(s, t));
+	}
+}
+*/
