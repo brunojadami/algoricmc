@@ -9,7 +9,7 @@
 using namespace std;
 
 const int MAX_NODES = 10000;		/*!<Numero máximo de nós que o Graph pode comportar. NOTA: Pode estourar a memoria estática. */
-const int INFINITY = 100000;	/*!<Valor de infinito, usado por Dijkstra e outros algoritmos. */
+const int INFINITY = 100000;		/*!<Valor de infinito, usado por Dijkstra e outros algoritmos. */
 typedef int Weight;
 
 struct Graph{
@@ -150,105 +150,7 @@ struct Graph{
 	 * \return Índice da aresta inversa.
 	 */ 
 	inline int reverse(int arc);
-
-
-
-	int excess[MAX_NODES];
-	int heights[MAX_NODES];
-	void push(int srcNode, int dstNode, int arc);
-	inline void relabel(int srcNode, int dstNode);
-	void initializePreFlow(int srcNode, queue<int>& excessList);
-	int pushRelabel(int srcNode, int dstNode);
 };
-
-void Graph::push(int srcNode, int dstNode, int arc){
-	int pushedFlow = min(excess[srcNode], capacities[arc] - flows[arc]);
-	flows[arc] += pushedFlow;
-	flows[reverse(arc)] -= pushedFlow;
-	excess[srcNode] -= pushedFlow;
-	excess[dstNode] += pushedFlow;
-}
-
-inline void Graph::relabel(int srcNode, int dstNode){
-	heights[srcNode] = 1 + heights[dstNode];
-}
-
-void Graph::initializePreFlow(int srcNode, queue<int>& excessList){
-	// Inicializa o pre-flow.
-	for(int i = 0; i < nNodes; i++){
-		heights[i] = 0;
-		excess[i] = 0;
-	}
-	for(int i = 0; i < flows.size(); i++)
-		flows[i] = 0;
-	heights[srcNode] = nNodes;
-	for(int i = 0; i < arcs[srcNode].size(); i++){
-		int arc = arcs[srcNode][i];
-		int neighbourNode = destinies[arc];
-		flows[arc] += capacities[arc];
-		flows[reverse(arc)] -= capacities[arc];
-		excess[neighbourNode] += capacities[arc];
-		excess[srcNode] -= capacities[arc];
-
-		excessList.push(neighbourNode);
-	}
-}
-
-int Graph::pushRelabel(int srcNode, int dstNode){
-	pair<int, pair<int, int> > p;
-	vector<pair<int, pair<int, int> > > relabelList;
-
-	queue<int> excessList;
-	initializePreFlow(srcNode, excessList);
-	while( !excessList.empty() ){
-		int currentNode = excessList.front();
-		excessList.pop();
-
-		bool hasExcess( 0 < excess[currentNode] );
-		if( !hasExcess )
-			continue;
-
-//		print();
-//		for(int i = 0; i < nNodes; i++)
-//			cout << i << '\t' << excess[i] << '\t' << heights[i] << endl;
-		relabelList.clear();
-		for(int i = 0; i < arcs[currentNode].size() && hasExcess; i++){
-			int arc = arcs[currentNode][i];
-			int neighbourNode = destinies[arc];
-
-			bool canPush( heights[currentNode] == heights[neighbourNode] + 1 );
-			bool hasCapacity( 0 < capacities[arc] - flows[arc] );
-			if( hasCapacity ){
-				if( canPush ){
-					push(currentNode, neighbourNode, arc);
-					excessList.push(neighbourNode);
-				}
-				else{
-					p.first = heights[neighbourNode];
-					p.second.first = neighbourNode;
-					p.second.second = arc;
-
-					relabelList.push_back(p);
-				}
-			}
-			hasExcess = ( 0 < excess[currentNode] );
-		}
-		bool canRelabel( currentNode != srcNode && currentNode != dstNode );
-		if( hasExcess && canRelabel ){
-			sort(relabelList.begin(), relabelList.end());
-			for(int i = 0; i < relabelList.size() && hasExcess; i++){
-				relabel(currentNode, relabelList[i].second.first);
-				push(currentNode, relabelList[i].second.first, relabelList[i].second.second);
-				excessList.push(relabelList[i].second.first);
-				hasExcess = ( 0 < excess[currentNode] );
-			}
-		}
-		if( hasExcess && currentNode != dstNode )
-			excessList.push(currentNode);
-	}
-	return excess[dstNode];
-}
-
 
 inline int Graph::reverse(int arc){
 	return (arc ^ 1);
@@ -486,7 +388,7 @@ int main(){
 // o grafo tenha o dobro de arestas.
 //
 // Para dígrafos, é preciso descomentar a insertArc.
-
+/*
 int main(){
 	Graph graph;
 	int n, s, t, c, caso = 1;
@@ -502,7 +404,7 @@ int main(){
 		}
 		//queue<int> f;
 		//graph.initializePreFlow(s, f);
-		printf("Network %d\nThe bandwidth is %d.\n\n", caso++, graph.pushRelabel(s, t));
+		printf("Network %d\nThe bandwidth is %d.\n\n", caso++, graph.edmondsKarp(s, t));
 	}
 }
-
+*/
