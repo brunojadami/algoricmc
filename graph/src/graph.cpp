@@ -15,8 +15,8 @@ typedef int Weight;
 struct Graph{
 	vector<int> destinies;		/*!<Nós de destino de uma dada aresta. */
 	vector<int> flows;		/*!<Fluxo em cada aresta. */
-        vector<int> capacities;		/*!<Capacidade de cada aresta. */
-        int pathCapacities[MAX_NODES];	/*!<Usado para achar a capacidade dos caminhos na busca em largura de fluxos. */
+	vector<int> capacities;		/*!<Capacidade de cada aresta. */
+	int pathCapacities[MAX_NODES];	/*!<Usado para achar a capacidade dos caminhos na busca em largura de fluxos. */
 	vector<int> arcs[MAX_NODES];	/*!<Arestas de cada nó. Armazena o índice de cada aresta. */
 	int nNodes;			/*!<Número de vertices no Graph. Esse numero dever ser menor ou igual a MAX_NODES. */
 	int visited[MAX_NODES];		/*!<Nós visitados. 1 indica que o nó foi visitado, e 0 indica que não foi, nos métodos que o utilizam. */
@@ -187,7 +187,7 @@ void Graph::print(){
 		cout << i << " : ";
 		for(int j = 0; j < arcs[i].size(); j++){
 			if(capacities[arcs[i][j]] != 0)
-			cout << '(' << destinies[arcs[i][j]] << ','/* << weights[arcs[i][j]] << ','*/ << capacities[arcs[i][j]] << ',' << flows[arcs[i][j]] << ") ";
+				cout << '(' << destinies[arcs[i][j]] << ','/* << weights[arcs[i][j]] << ','*/ << capacities[arcs[i][j]] << ',' << flows[arcs[i][j]] << ") ";
 		}
 		cout << endl;
 	}
@@ -199,7 +199,7 @@ void Graph::dfs(int srcNode){
 
 	for(int i = 0; i < arcs[srcNode].size(); i++){
 		int arc = arcs[srcNode][i];
-	        int neighbourNode = destinies[arc];
+		int neighbourNode = destinies[arc];
 
 		bool isVisited( 0 != visited[neighbourNode] );
 		if( !isVisited ){
@@ -232,8 +232,8 @@ int Graph::bfs(int srcNode, int dstNode = -1){
 				usedArcs[neighbourNode] = arc;
 
 				// pathCapacities[neighbourNode] = min(pathCapacities[currentNode], residualCapacity);
-				
-			       	if(neighbourNode == dstNode)
+
+				if(neighbourNode == dstNode)
 					return pathCapacities[dstNode];
 				fila.push(neighbourNode);
 			}
@@ -264,7 +264,7 @@ void Graph::dijkstra(int srcNode, int dstNode = -1){
 
 		for(int i = 0; i < arcs[currentNode].size(); i++){
 			int arc = arcs[currentNode][i];
-		       	int neighbourNode = destinies[arc];
+			int neighbourNode = destinies[arc];
 
 			Weight newDistance = distances[currentNode] + weights[arc];
 			if( newDistance < distances[neighbourNode] ){
@@ -361,23 +361,23 @@ int Graph::edmondsKarp(int srcNode, int dstNode){
 
 // UVA 558 Wormholes - Rank 382 - Bellman-Ford 
 /*
-int main(){
-	Graph graph;
-	int c, n, m, t;
-	scanf("%d", &c);
-	for(int i = 0; i < c; i++){
-		scanf("%d%d", &n, &m);
-		graph.initialize(n);
-		for(int i = 0; i < m; i++){
-			int x, y, t;
-			scanf("%d%d%d", &x, &y, &t);
-			graph.insertArc(x, y, t);
-		}
-		puts(graph.bellmanFord(0) == 0 ? "not possible" : "possible");
-	}			
-	return 0;
-}
-*/
+   int main(){
+   Graph graph;
+   int c, n, m, t;
+   scanf("%d", &c);
+   for(int i = 0; i < c; i++){
+   scanf("%d%d", &n, &m);
+   graph.initialize(n);
+   for(int i = 0; i < m; i++){
+   int x, y, t;
+   scanf("%d%d%d", &x, &y, &t);
+   graph.insertArc(x, y, t);
+   }
+   puts(graph.bellmanFord(0) == 0 ? "not possible" : "possible");
+   }			
+   return 0;
+   }
+   */
 
 // UVA 820 Internet Bandwidth - Rank 93 - Max-flow
 // Esse problema é foda, God pegou rank 6 xD.
@@ -389,22 +389,22 @@ int main(){
 //
 // Para dígrafos, é preciso descomentar a insertArc.
 /*
-int main(){
-	Graph graph;
-	int n, s, t, c, caso = 1;
-	while(1){
-		scanf("%d%d%d%d", &n, &s, &t, &c);
-		if(n == 0) return 0;
-		graph.initialize(n+1);
-		for(int i = 0; i < c; i++){
-			int src, dst, cap;
-			scanf("%d%d%d", &src, &dst, &cap);
-			graph.insertArc(src, dst, 0, cap);	// o 0 aqui eh do campo peso da aresta
-			graph.insertArc(dst, src, 0, cap);
-		}
-		//queue<int> f;
-		//graph.initializePreFlow(s, f);
-		printf("Network %d\nThe bandwidth is %d.\n\n", caso++, graph.edmondsKarp(s, t));
-	}
+   int main(){
+   Graph graph;
+   int n, s, t, c, caso = 1;
+   while(1){
+   scanf("%d%d%d%d", &n, &s, &t, &c);
+   if(n == 0) return 0;
+   graph.initialize(n+1);
+   for(int i = 0; i < c; i++){
+   int src, dst, cap;
+   scanf("%d%d%d", &src, &dst, &cap);
+   graph.insertArc(src, dst, 0, cap);	// o 0 aqui eh do campo peso da aresta
+   graph.insertArc(dst, src, 0, cap);
+   }
+//queue<int> f;
+//graph.initializePreFlow(s, f);
+printf("Network %d\nThe bandwidth is %d.\n\n", caso++, graph.edmondsKarp(s, t));
+}
 }
 */
