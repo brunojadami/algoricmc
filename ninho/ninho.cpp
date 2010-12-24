@@ -233,6 +233,12 @@ int maximumSum(int* s, int n, int& k, int& m)
    n - se impar somar, se par sub, todas interseccoes dos conjuntos n a n
    Link: http://www.topcoder.com/stat?c=problem_statement&pm=11008&rd=14244
 */
+int gcd(int a, int b)
+{
+	if (b == 0)
+		return a;
+	return gcd(b, a%b);
+}
 int getNumBroken(int N, vector <int> left, vector <int> right, vector <int> damage) 
 {
 	int res = 0, m = (1 << left.size()); // mascara pra testar todas as possibilidades de interseccao
@@ -248,7 +254,7 @@ int getNumBroken(int N, vector <int> left, vector <int> right, vector <int> dama
 			maxLeft = max(maxLeft, (long long)left[j]); // pegando o intervalo de interseccao
 			minRight = min(minRight, (long long)right[j]); // usando long long porque pode storar o lcm (mmc)
 			g = gcd(lcm, damage[j]); // calculando o minimo multiplo comum dos damages da interseccao
-			lcm = (lcm*damage[j])/g;
+			lcm = (lcm*damage[j])/g; // mmc(a,b) = a*b/gcd(a,b)
 			if (lcm > N) // N eh o maximo numero da garrafa
 				break;
 		} 
