@@ -6,6 +6,92 @@
 using namespace std;
 
 /*=============================================================================*
+/*============================= Topico: Grafos ================================*
+/*=============================================================================*/
+
+/* Funcao: Criar um grafo unindo os componentes fortemente conexos, ira sobrar
+   um grafo aciclico (arvore), ideia de rodar uma dfs duas vezes nos vertices. 
+   Problema do larguest clique. 11324 - The Largest Clique
+*/
+#define VERTS 1010
+int graph[VERTS][VERTS]; // grafo, vai de 1 a VERTS
+int espec[VERTS][VERTS]; // grafo final, vai de 1 a VERTS
+int vis[VERTS]; // vetor de visitados pra usar na dfs
+int done[VERTS]; // vetor pra checar quem ja foi incluido no grafo
+int o = 1; // numero total de vertices no grafo final (eh -1 deste valor)
+void reset(int set[VERTS], int n) // so pra resetar os vetores
+{
+	for (int x = 0; x <= n; ++x)
+		set[x] = 0;
+}
+void reset2(int set[VERTS][VERTS], int n) // so pra resetar as matrizes
+{
+	for (int x = 0; x <= n; ++x)
+		for (int y = 0; y <= n; ++y)
+			set[x][y] = 0;
+}
+void dfs(int p, int n) // primeira dfs, normal
+{
+	if (vis[p])
+		return;
+	vis[p] = 1;
+	for (int x = 1; x <= n; ++x)
+		if (graph[p][x])
+			dfs(x, n);
+}
+void dfsEx(int p, int n, int o, vector<int>* verts) // segunda dfs, quem esteve marcado na primeira
+{						    // vai para os conjunto de vertices do super vertice
+	if (vis[p] == 2)			    // é os que estao fortemente conectados, ou sozinhos
+		return;
+	if (vis[p] == 1) // se foi visitado na primera dfs eh pq ele consegue voltar, fortemente conexo!
+	{
+		done[p] = 1; // processado
+		graph[p][0] = o; // este vertice faz parte do super vertice 'o'
+		verts[o].push_back(p); // vector auxiliar pra guardar os vertices, vector<int> verts[VERTS]
+	}			       // ele deve ser resetado toda vez que rodar isso!
+	vis[p] = 2; // visita
+	for (int x = 1; x <= n; ++x)
+		if (graph[x][p]) // eh ao contrario esta dfs, pra ver quem chega no vertice
+			dfsEx(x, n, o, verts);
+}
+void mount(int p, int n, vector<int>* verts) // preparando pra montar o grafo final, dfs, dfsEx
+{
+	if (done[p]) // se ja foi processado
+		return;
+	done[p] = 1;
+	reset(vis, n);
+	dfs(p, n); // rodando as duas dfs
+	dfsEx(p, n, o, verts); // verts eh o vector auxiliar pra guardar os vertices do super vertice
+	++o; // indexador do grafo final, comeca em 1, entao se ele valer N, tem N-1 vertices
+}
+void create(int p, int n, vector<int>* verts) // criando o grafo final, cuidado porque pode ter loops!
+{
+	for (vector<int>::iterator it = verts[p].begin(); it != verts[p].end(); ++it)
+	{ // iterando todos os vertices desse super vertice, e fazer as conexoes
+		int v = *it;
+		for (int x = 1; x <= n; ++x)
+		{
+			if (graph[v][x]) // fazendo as conexoes dos vertices
+				espec[p][graph[x][0]] = 1; // graph[x][0] eh onde o vertice x esta
+		}					   // nos super vertices, em qual ele ta
+	}
+	done[p] = verts[p].size(); // quantidades de vertices postos nesse super vertice, 
+}				   // so pra usar no problema dos cliques
+void usage() // como usar, por dentro do loop do main while (casos--) { aqui }
+{
+	pegaN(); // pra montar os grafo normal, inicial
+	reset2(graph, n); // resetando graph (grafo inicial), n eh o numero de vertices do original
+	reset2(espec, n); // resetando espec (grafo final)
+	reset(done, n); // resetando o vetor done, o vis eh resetado dentro das outras funcoes
+	criaGrafoNormal(); // cria o graph, pegando as arestas da entrada scanf bla bla bla
+	o = 1; // iniciando o com 1, os vertices vao de 1 ateh n (ou ate o no grafo final)
+	vector<int> verts[VERTS]; // vector auxiliar, declarado aqui pra nao precisar resetar
+	for (int x = 1; x <= n; ++x) // rodando pra cada vertice do original o mount que vai separar
+		mount(x, n, verts);  // os vertices em cada supervertice
+	for (int x = 1; x <= o; ++x) // rodando pra cada vertice do grafo final o create que vai
+		create(x, n, verts); // criar o grafo final fazendo as conexoes das arestas, cuidado com loops!
+}
+/*=============================================================================*
 /*========================= Topico: Numeros primos ============================*
 /*=============================================================================*/
 
@@ -104,9 +190,9 @@ int maximumSum(int* s, int n, int& k, int& m)
 	for (int i = 0; i < n; ++i) 
 	{
 		max += s[i];
-		if (max >= maxSum) // Se for a de soma maxima
+		if (max >= maxSum) // se for a de soma maxima
 		{
-			if (max == maxSum) // Se for igual, ver qual que tem menos elementos
+			if (max == maxSum) // se for igual, ver qual que tem menos elementos
 			{
 				if (i-j + 1 < m)
 				{
@@ -114,14 +200,14 @@ int maximumSum(int* s, int n, int& k, int& m)
 					m = i-j + 1;
 				}
 			}
-			else // Senao essa eh a maior
+			else // senao essa eh a maior
 			{
 				k = j;
 				m = i-j + 1;
 			}
 			maxSum = max;
 		}
-		if (max <= 0) // Se der 0 ja comecar outra subsequencia
+		if (max <= 0) // se der 0 ja comecar outra subsequencia
 		{
 			j = i+1;
 			max = 0;
