@@ -5,7 +5,7 @@
 #include<vector>
 #include<utility>
 #include<queue>
-#include<algorithm>			// Possui a função min.
+#include<algorithm>					// Possui a função min.
 using namespace std;
 
 const int MAX_NODES = 10000;		/*!<Numero máximo de nós que o Graph pode comportar. NOTA: Pode estourar a memoria estática. */
@@ -13,24 +13,19 @@ const int INFINITY = 100000;		/*!<Valor de infinito, usado por Dijkstra e outros
 typedef int Weight;
 
 struct Graph{
-	vector<int> destinies;		/*!<Nós de destino de uma dada aresta. */
-	vector<int> flows;		/*!<Fluxo em cada aresta. */
-	vector<int> capacities;		/*!<Capacidade de cada aresta. */
-	int pathCapacities[MAX_NODES];	/*!<Usado para achar a capacidade dos caminhos na busca em largura de fluxos. */
-	vector<int> arcs[MAX_NODES];	/*!<Arestas de cada nó. Armazena o índice de cada aresta. */
-	int nNodes;			/*!<Número de vertices no Graph. Esse numero dever ser menor ou igual a MAX_NODES. */
-	int visited[MAX_NODES];		/*!<Nós visitados. 1 indica que o nó foi visitado, e 0 indica que não foi, nos métodos que o utilizam. */
-	int distances[MAX_NODES];	/*!<Distância até cada nó. Usado por Dijkstra e Bellman-Ford. */
-	vector<Weight> weights;		/*!<Peso de cada aresta. */
-	vector<int> searchResult;	/*!<Armazena o resultado de uma busca. */
-	int previousNodes[MAX_NODES];	/*!<Predecessores de cada nó. Usado pelas buscas e pelo dijkstra. */
-	int usedArcs[MAX_NODES];	/*!<Aresta usada para chegar aos nós em uma busca. Verifique previousNode antes de ler um valor daqui.*/
+	vector<int> destinies;				/*!<Nós de destino de uma dada aresta. */
+	vector<int> flows;					/*!<Fluxo em cada aresta. */
+	vector<int> capacities;				/*!<Capacidade de cada aresta. */
+	//int pathCapacities[MAX_NODES];	/*!<Usado para achar a capacidade dos caminhos na busca em largura de fluxos. */
+	vector<int> arcs[MAX_NODES];		/*!<Arestas de cada nó. Armazena o índice de cada aresta. */
+	int nNodes;							/*!<Número de vertices no grafo. Dever ser menor ou igual a MAX_NODES. */
+	vector<Weight> weights;				/*!<Peso de cada aresta. */
 
-	/*! \brief Inicializador do Grafo.
+	/*! \brief Inicializador do grafo.
 	 *
-	 * Limpa o grafo inteiro e cria um grafo com nNodes nós.
+	 * Limpa o grafo inteiro e cria um grafo com nNodes vértices.
 	 *
-	 * \param[in] nNodes Numero de vertices que o Graph tem. Deve ser menor ou igual a MAX_NODES. Default 0.
+	 * \param[in] nNodes Número de vértices que o grafo tem. Deve ser menor ou igual a MAX_NODES. Default 0.
 	 */ 
 	void initialize(int nNodes);
 
@@ -38,17 +33,14 @@ struct Graph{
 	 *
 	 * \param[in] srcNode Vértice origem.
 	 * \param[in] dstNode Vértice destino.
-	 * \param[in] weight Weight da aresta. Default 0.
-	 * \param[in] capacity Capacidade da aresta. Default 0.
+	 * \param[in] weight Peso da aresta. Default 0.
 	 *
 	 * \note Para usar os algoritmos de fluxo, é necessário descomentar uma parte 
 	 * do código desse método. A parte está indicada em seu código. Isso faz com que o grafo insira 
 	 * a aresta desejada e, além dela, uma aresta inversa, usada internamente pelos algoritmos de
-	 * fluxo, para que o fluxo "possa ser mandado de volta". Essa aresta tem capacidade 0. Para problemas
-	 * onde o grafo NÃO é direcionado, não é preciso descomentar o código (só testei isso em alguns programas,
-	 * mas eles passaram).
+	 * fluxo, para que o fluxo possa "ser mandado de volta". Essa aresta tem capacidade 0.
 	 */ 
-	void insertArc(int srcNode, int dstNode, Weight weight, int capacity);
+	void insertArc(int srcNode, int dstNode, Weight weight /*, int capacity*/ );
 
 	/*! \brief Imprime o grafo.
 	 *
@@ -64,116 +56,111 @@ struct Graph{
 	 *
 	 * \param[in] srcNode Nó inicial.
 	 *
-	 * \param[out] searchResult Ordem em que os nós são visitados pela primeira vez. Não é inicializado internamente.
-	 * \param[out] previousNodes Predecessor de cada nó. Não é inicializado internamente.
-	 * \param[out] usedArcs Arestas usada pelo predecessor de cada nó para chegar nele. Não é inicializado internamente.
-	 * \param[out] visited Nós que foram visitados por essa busca. Não é inicializado internamente.
+	 * \param[out] visited Nós que foram visitados por essa busca.
+	 *
+	 * \todo Implementar funcionalidade extra 4.
 	 */
-	void dfs(int srcNode);
+	void dfs(int srcNode, int visited[]);
 
 	/*! \brief Busca em largura.
 	 *
-	 * Veja os comentários da busca em profundidade. Os mesmos se aplicam aqui.
-	 * Também implementa algumas funcionalidades usadas por edmondsKarp. Elas 
-	 * estão comentadas no código.
+	 * Busca em largura. Também implementa algumas funcionalidades usadas 
+	 * por edmondsKarp (veja a seção de funcionalidades extras no código do 
+	 * método).  
 	 *
-	 * \param[in] dstNode Nó destino. Default -1 (nenhum nó destino, visita todos os nós).
+	 * \param[in] srcNode Nó inicial.
 	 *
-	 * \return Usado apenas pelo edmondsKarp. Retorna o valor da menor capacidade do caminho achado.
+	 * \note edmondsKarp faz as inicializações necessárias antes de chamar este método.
 	 *
-	 * \note Não inicializa "visited", "previousNodes", "usedArcs" e nem "searchResult" internamente.
-	 * edmondsKarp faz as inicializações necessárias antes de chamar este método.
+	 * \todo Implementar funcionalidade 4, e verificar funcionalidade 5.
+	 * Finalizar seção de código de inicialização.
 	 */ 
-	int bfs(int srcNode, int dstNode);
+	void bfs(int srcNode, int visited[]);
 
 	/*! \brief Algoritmo de Dijkstra.
 	 *
-	 * Se ("dstNode" == -1), então o algoritmo para após ter calculado a distância 
-	 * mínima do nó origem para cada nó; caso contrário, o algoritmo retorna assim que achar a
-	 * distância mínima até o nó destino. 
+	 * Algoritmo de Dijkstra. 
 	 *
 	 * \param[in] srcNode Nó origem.
-	 * \param[in] dstNode Nó destino. Default -1.
 	 *
 	 * \param[out] previousNodes Predecessor de cada nó. -1 indica que não existe predecessor.
-	 * \param[out] usedArcs Arestas usada pelo predecessor de cada nó para chegar nele.
-	 * \param[out] visited Nós visitados. Não é inicializado internamente.
-	 * \param[out] distances Distância total até cada nó, partindo-se de srcNode.
-	 *
-	 * \note Inicializa "previousNodes" e "distances" internamente antes de executar o algoritmo.
+	 * \param[out] minDistances Distância total até cada nó, partindo-se de srcNode.
 	 */ 
-	void dijkstra(int srcNode, int dstNode);
+	void dijkstra(int srcNode, Weight minDistances[], int previousNodes[]);
 
-	/*! \brief Bellman-Ford.
-	 *
-	 * Acha a menor distância até cada nó. Funciona em grafos com
-	 * arestas cujos pesos são negativos.
-	 *
-	 * \param[in] srcNode Nó origem.
-	 *
-	 * \param[out] previousNodes Predecessor de cada nó.
-	 * \param[out] usedArcs Arestas usada pelo predecessor de cada nó para chegar nele.
-	 * \param[out] distances Distância até cada nó.
-	 *
-	 * \return 1 se existe pelo menos um ciclo negativo no grafo, 0 caso contrário.
-	 *
-	 * \note Inicializa "previousNodes" e "distances" antes de executar.
-	 */  
-	int bellmanFord(int srcNode);
-
-	/*! \brief Algoritmo de fluxo máximo de Edmonds-Karp.
-	 *
-	 * Acha o fluxo máximo no grafo. Para isso, realiza várias buscas em largura
-	 * para encontrar caminhos que adicionam fluxo.
-	 *
-	 * \param[in] srcNode Nó origem.
-	 * \param[in] dstNode Nó final.
-	 *
-	 * \param[out] flows Fluxo passando em cada aresta.
-	 * \param[out] visited Determina o Min-Cut.
-	 * \param[out] previousNodes É usada pela busca em largura.
-	 * \prama[out] usedArcs É usada pela busca em largura.
-	 *
-	 * \return Valor do fluxo máximo no grafo.
-	 *
-	 * \note O método já faz as inicializações necessárias antes de 
-	 * executar o algoritmo. Não esqueça de descomentar as linhas de código da busca 
-	 * em largura e da inserção de arestas para usar esse método.
-	 */
-	int edmondsKarp(int srcNode, int dstNode);
-
-	/*! \brief Retorna a aresta inversa.
-	 *
-	 * Método usado por algoritmos de fluxo. Retorna a aresta inversa de uma dada aresta.
-	 *
-	 * \param[in] arc Índice de uma aresta.
-	 * \return Índice da aresta inversa.
-	 */ 
-	inline int reverse(int arc);
+//	/*! \brief Bellman-Ford.
+//	 *
+//	 * Acha a menor distância até cada nó. Funciona em grafos com
+//	 * arestas cujos pesos são negativos.
+//	 *
+//	 * \param[in] srcNode Nó origem.
+//	 *
+//	 * \param[out] previousNodes Predecessor de cada nó.
+//	 * \param[out] usedArcs Arestas usada pelo predecessor de cada nó para chegar nele.
+//	 * \param[out] distances Distância até cada nó.
+//	 *
+//	 * \return 1 se existe pelo menos um ciclo negativo no grafo, 0 caso contrário.
+//	 *
+//	 * \note Inicializa "previousNodes" e "distances" antes de executar.
+//	 */  
+//	int bellmanFord(int srcNode);
+//
+//	/*! \brief Algoritmo de fluxo máximo de Edmonds-Karp.
+//	 *
+//	 * Acha o fluxo máximo no grafo. Para isso, realiza várias buscas em largura
+//	 * para encontrar caminhos que adicionam fluxo.
+//	 *
+//	 * \param[in] srcNode Nó origem.
+//	 * \param[in] dstNode Nó final.
+//	 *
+//	 * \param[out] flows Fluxo passando em cada aresta.
+//	 * \param[out] visited Determina o Min-Cut.
+//	 * \param[out] previousNodes É usada pela busca em largura.
+//	 * \prama[out] usedArcs É usada pela busca em largura.
+//	 *
+//	 * \return Valor do fluxo máximo no grafo.
+//	 *
+//	 * \note O método já faz as inicializações necessárias antes de 
+//	 * executar o algoritmo. Não esqueça de descomentar as linhas de código da busca 
+//	 * em largura e da inserção de arestas para usar esse método.
+//	 */
+//	int edmondsKarp(int srcNode, int dstNode);
+//
+//	/*! \brief Retorna a aresta inversa.
+//	 *
+//	 * Método usado por algoritmos de fluxo. Retorna a aresta inversa de uma dada aresta.
+//	 *
+//	 * \param[in] arc Índice de uma aresta.
+//	 * \return Índice da aresta inversa.
+//	 */ 
+//	inline int reverse(int arc);
 };
 
-inline int Graph::reverse(int arc){
-	return (arc ^ 1);
-}
+//inline int Graph::reverse(int arc){
+//	return (arc ^ 1);
+//}
 
 void Graph::initialize(int nNodes = 0){
 	this->nNodes = nNodes;
 	weights.clear();
-	flows.clear();
 	destinies.clear();
-	capacities.clear();
+	// flows.clear();
+	// capacities.clear();
 	for(int i = 0; i < nNodes; i++)
 		arcs[i].clear();
 }
 
-void Graph::insertArc(int srcNode, int dstNode, Weight weight = 0, int capacity = 0){
+void Graph::insertArc(int srcNode, int dstNode, Weight weight = 0 /*, int capacity = 0 */ ){
 	arcs[srcNode].push_back(destinies.size());
 	weights.push_back(weight);
-	capacities.push_back(capacity);
 	destinies.push_back(dstNode);
-	flows.push_back(0);
 
-	// A parte abaixo é para fluxos.
+	///////////////////////////////////
+	// A parte abaixo é para fluxos. //
+	///////////////////////////////////
+	//
+	// capacities.push_back(capacity);
+	// flows.push_back(0);
 	//
 	// arcs[dstNode].push_back(destinies.size());
 	// weights.push_back(weight);
@@ -193,9 +180,30 @@ void Graph::print(){
 	}
 }
 
-void Graph::dfs(int srcNode){
+void Graph::dfs(int srcNode, int visited[]){
+	//////////////////////////////////////////////////////////////////
+	// Funcionalidades extras:                                      //
+	//                                                              //
+	// 1: Retorna a ordem em que os nós foram visitados.            //
+	// 2: Retorna o predecessor de cada nó.                         // 
+	// 3: Arestas usadas pelos predecessores para chegarem aos nós. //
+	// 4: Para a busca caso encontre o nó destino.                  //
+	////////////////////////////////////////////////////////////////// 
+	//////////////////////////////////////////////////////////////////
+	// Código de inicialização:                                     //
+	// Nota: Não use esse código dentro desse método; faça a 		//
+	// inicialização na main(), pois este é um método recurssivo.   //
+	//                                                              //
+	//	// 1: searchResult.clear();                                 //
+	//	for(int i = 0; i < nNodes; i++){                            //
+	//		visited[i] = 0;                                         //
+	//		// 2: previousNodes[i] = -1;                            //
+	//		// 3: usedArcs[i] = -1;                                 //
+	//	}                                                           //
+	//////////////////////////////////////////////////////////////////
+		
 	visited[srcNode] = 1;
-	searchResult.push_back(srcNode);
+	// 1: searchResult.push_back(srcNode);
 
 	for(int i = 0; i < arcs[srcNode].size(); i++){
 		int arc = arcs[srcNode][i];
@@ -203,59 +211,96 @@ void Graph::dfs(int srcNode){
 
 		bool isVisited( 0 != visited[neighbourNode] );
 		if( !isVisited ){
-			previousNodes[neighbourNode] = srcNode;
-			usedArcs[neighbourNode] = arc;
-			dfs(neighbourNode);
+			// 2: previousNodes[neighbourNode] = srcNode;
+			// 3: usedArcs[neighbourNode] = arc;
+			
+			// Ajuste a lista de parâmetros passados para o método.
+			dfs(neighbourNode, visited);
 		}
 	}
 }
 
-int Graph::bfs(int srcNode, int dstNode = -1){
+void Graph::bfs(int srcNode, int visited[]){
+	//////////////////////////////////////////////////////////////////
+	// Funcionalidades extras:                                      //
+	//                                                              //
+	// 1: Retorna a ordem em que os nós foram visitados.            //
+	// 2: Retorna o predecessor de cada nó.                         // 
+	// 3: Arestas usadas pelos predecessores para chegarem aos nós. //
+	// 4: Para a busca caso encontre o nó destino.                  //
+	// 5: Código usado por edmondsKarp.                  			//
+	////////////////////////////////////////////////////////////////// 
+	//////////////////////////////////////////////////////////////////
+	// Código de inicialização:                                     //
+	//                                                              //
+	//	// 1: searchResult.clear();                                 //
+	//	for(int i = 0; i < nNodes; i++){                            //
+	//		visited[i] = 0;                                         //
+	//		// 2: previousNodes[i] = -1;                            //
+	//		// 3: usedArcs[i] = -1;                                 //
+	//	}                                                           //
+	//////////////////////////////////////////////////////////////////
+	
 	visited[srcNode] = 1;
-
 	queue<int> fila;
+
 	fila.push(srcNode);
 	while( !fila.empty() ){
 		int currentNode = fila.front();
 		fila.pop();
-		searchResult.push_back(currentNode);
+		// 1: searchResult.push_back(currentNode);
+
 		for(int i = 0; i < arcs[currentNode].size(); i++){
 			int arc = arcs[currentNode][i];
 			int neighbourNode = destinies[arc];
-			// int residualCapacity = capacities[arc] - flows[arc];
+			// 5: int residualCapacity = capacities[arc] - flows[arc];
 
-			// bool hasCapacity( residualCapacity > 0 );
+			// 5: bool hasCapacity( residualCapacity > 0 );
 			bool isVisited( 0 != visited[neighbourNode] );
-			if( !isVisited ){	// Adicione um "&& hasCapacity" nesse if.
+			if( !isVisited ){	// 5: Adicione um "&& hasCapacity" nesse if.
 				visited[neighbourNode] = 1;
-				previousNodes[neighbourNode] = currentNode;
-				usedArcs[neighbourNode] = arc;
+				// 2: previousNodes[neighbourNode] = currentNode;
+				// 3: usedArcs[neighbourNode] = arc;
 
-				// pathCapacities[neighbourNode] = min(pathCapacities[currentNode], residualCapacity);
+				// 5: pathCapacities[neighbourNode] = min(pathCapacities[currentNode], residualCapacity);
 
-				if(neighbourNode == dstNode)
-					return pathCapacities[dstNode];
+				// 5: if(neighbourNode == dstNode)
+				// 5: return pathCapacities[dstNode];
 				fila.push(neighbourNode);
 			}
 		}
 	}
-	return 0;
 }
 
-void Graph::dijkstra(int srcNode, int dstNode = -1){
+void Graph::dijkstra(int srcNode, Weight minDistances[], int previousNodes[]){
+	//////////////////////////////////////////////////////////////////
+	// Funcionalidades extras:                                      //
+	//                                                              //
+	// 1: Arestas usadas pelos predecessores para chegarem aos nós. //
+	// 2: Para a busca caso encontre o nó destino.                  //
+	////////////////////////////////////////////////////////////////// 
+	//////////////////////////////////////////////////////////////////
+	// Código de inicialização:                                     //
+	//                                                              //
+	//	for(int i = 0; i < nNodes; i++)                             //
+	//		// 1: usedArcs[i] = -1;                                 //
+	//////////////////////////////////////////////////////////////////
+
+	int visited[MAX_NODES];
 	for(int i = 0; i < nNodes; i++){
-		distances[i] = INFINITY;
+		visited[i] = 0;
+		minDistances[i] = INFINITY;
 		previousNodes[i] = -1;
 	}
 
 	priority_queue<pair<Weight, int> > fila;
-	fila.push(make_pair(distances[srcNode] = 0, srcNode));
+	fila.push(make_pair(minDistances[srcNode] = 0, srcNode));
 	while( !fila.empty() ){
 		int currentNode = fila.top().second;
 		fila.pop();
 
-		if(currentNode == dstNode)
-			return;
+		// 2: if(currentNode == dstNode)
+		// 2:	return;
 
 		bool isVisited( 0 != visited[currentNode] );
 		if( isVisited )
@@ -266,92 +311,92 @@ void Graph::dijkstra(int srcNode, int dstNode = -1){
 			int arc = arcs[currentNode][i];
 			int neighbourNode = destinies[arc];
 
-			Weight newDistance = distances[currentNode] + weights[arc];
-			if( newDistance < distances[neighbourNode] ){
-				distances[neighbourNode] = newDistance;
+			Weight newDistance = minDistances[currentNode] + weights[arc];
+			if( newDistance < minDistances[neighbourNode] ){
+				minDistances[neighbourNode] = newDistance;
 				previousNodes[neighbourNode] = currentNode;
-				usedArcs[neighbourNode] = arc;
+				// 1: usedArcs[neighbourNode] = arc;
 
 				isVisited = ( 0 != visited[neighbourNode] );
 				if( !isVisited )
-					fila.push(make_pair( -distances[neighbourNode], neighbourNode));
+					fila.push(make_pair( -minDistances[neighbourNode], neighbourNode));
 			}
 		}
 	}
 }
 
-int Graph::bellmanFord(int srcNode){		
-	for(int i = 0; i < nNodes; i++){
-		distances[i] = INFINITY;
-		previousNodes[i] = -1;
-	}
-	distances[srcNode] = 0;
-
-	// Relaxa as arestas (nNodes - 1) vezes.
-	for(int relaxCounter = 1; relaxCounter < nNodes; relaxCounter++){
-		bool canStop = true;			// Usada para ver se alguma aresta foi relaxada.
-		for(int i = 0; i < nNodes; i++){	// i faz o papel de "currentNode" aqui.
-			for(int j = 0; j < arcs[i].size(); j++){
-				int arc = arcs[i][j];
-				int dstNode = destinies[arc];
-				Weight newDistance = distances[i] + weights[arc];
-				if(newDistance < distances[dstNode]){
-					canStop = false;
-					distances[dstNode] = newDistance;
-					previousNodes[dstNode] = i;
-					usedArcs[dstNode] = arc;
-				}
-			}
-		}
-
-		if( canStop )				// Se nenhuma aresta foi relaxada, podemos parar.
-			return 0;
-	}
-
-	// Verifica se há ciclo negativo.
-	for(int i = 0; i < nNodes; i++){		// i faz o papel de "currentNode" aqui.
-		for(int j = 0; j < arcs[i].size(); j++){
-			int arc = arcs[i][j];
-			int dstNode = destinies[arc];
-			Weight newDistance = distances[i] + weights[arc];
-			if(newDistance < distances[dstNode])
-				return 1;
-		}
-	}
-
-	return 0;
-}
-
-int Graph::edmondsKarp(int srcNode, int dstNode){	
-	for(int i = 0; i < flows.size(); i++)
-		flows[i] = 0;
-
-	int maxFlow = 0;
-	while(1){
-		// Faz algumas inicializações e chama uma busca em
-		// largura para achar a capacidade mínima de um
-		// possível caminho.
-		for(int i = 0; i < nNodes; i++)
-			visited[i] = 0;
-		previousNodes[dstNode] = -1;
-		pathCapacities[srcNode] = INFINITY;
-		int minPathCapacity = bfs(srcNode, dstNode);
-
-		// Atualiza o fluxo máximo ou retorna.
-		if(0 == minPathCapacity)
-			return maxFlow;
-		maxFlow += minPathCapacity;
-
-		// Atualiza o fluxo nas arestas do caminho achado.
-		int j = dstNode;
-		while(j != srcNode){
-			flows[usedArcs[j]] += minPathCapacity;
-			flows[reverse(usedArcs[j])] -= minPathCapacity;
-
-			j = previousNodes[j];
-		}
-	}
-}
+//int Graph::bellmanFord(int srcNode){		
+//	for(int i = 0; i < nNodes; i++){
+//		distances[i] = INFINITY;
+//		previousNodes[i] = -1;
+//	}
+//	distances[srcNode] = 0;
+//
+//	// Relaxa as arestas (nNodes - 1) vezes.
+//	for(int relaxCounter = 1; relaxCounter < nNodes; relaxCounter++){
+//		bool canStop = true;			// Usada para ver se alguma aresta foi relaxada.
+//		for(int i = 0; i < nNodes; i++){	// i faz o papel de "currentNode" aqui.
+//			for(int j = 0; j < arcs[i].size(); j++){
+//				int arc = arcs[i][j];
+//				int dstNode = destinies[arc];
+//				Weight newDistance = distances[i] + weights[arc];
+//				if(newDistance < distances[dstNode]){
+//					canStop = false;
+//					distances[dstNode] = newDistance;
+//					previousNodes[dstNode] = i;
+//					usedArcs[dstNode] = arc;
+//				}
+//			}
+//		}
+//
+//		if( canStop )				// Se nenhuma aresta foi relaxada, podemos parar.
+//			return 0;
+//	}
+//
+//	// Verifica se há ciclo negativo.
+//	for(int i = 0; i < nNodes; i++){		// i faz o papel de "currentNode" aqui.
+//		for(int j = 0; j < arcs[i].size(); j++){
+//			int arc = arcs[i][j];
+//			int dstNode = destinies[arc];
+//			Weight newDistance = distances[i] + weights[arc];
+//			if(newDistance < distances[dstNode])
+//				return 1;
+//		}
+//	}
+//
+//	return 0;
+//}
+//
+//int Graph::edmondsKarp(int srcNode, int dstNode){	
+//	for(int i = 0; i < flows.size(); i++)
+//		flows[i] = 0;
+//
+//	int maxFlow = 0;
+//	while(1){
+//		// Faz algumas inicializações e chama uma busca em
+//		// largura para achar a capacidade mínima de um
+//		// possível caminho.
+//		for(int i = 0; i < nNodes; i++)
+//			visited[i] = 0;
+//		previousNodes[dstNode] = -1;
+//		pathCapacities[srcNode] = INFINITY;
+//		int minPathCapacity = bfs(srcNode, dstNode);
+//
+//		// Atualiza o fluxo máximo ou retorna.
+//		if(0 == minPathCapacity)
+//			return maxFlow;
+//		maxFlow += minPathCapacity;
+//
+//		// Atualiza o fluxo nas arestas do caminho achado.
+//		int j = dstNode;
+//		while(j != srcNode){
+//			flows[usedArcs[j]] += minPathCapacity;
+//			flows[reverse(usedArcs[j])] -= minPathCapacity;
+//
+//			j = previousNodes[j];
+//		}
+//	}
+//}
 
 ///////////////////////////////////////////
 ////// Alguns exemplos do uso da TAD //////
