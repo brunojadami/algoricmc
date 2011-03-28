@@ -17,8 +17,9 @@ int kadane(vector<int> &vec){
 }
 
 #define likely(x) __builtin_expect((x),1)
-int kadane2D(void *mat, int nRows, int nCols){
-	int (*matrix)[nCols] = (int(*)[nCols])mat;
+const int MAX_ROWS = 100;
+const int MAX_COLS = 100;
+int kadane2D(int matrix[][MAX_COLS], int nRows, int nCols){
 	int subSums[nRows][nCols];
 	int maxTmp, curMax, result = 0;
 
@@ -41,15 +42,4 @@ int kadane2D(void *mat, int nRows, int nCols){
 			result = max(result, maxTmp);
 		}
 	return result;
-}
-
-int main(){
-	int a[3][3];
-	for(int i = 0; i < 3; i++){
-		for(int j = 0; j < 3; j++){
-			cin >> a[i][j];
-		}
-	}
-	cout << kadane2D(a, 3,3)<< endl;
-	return 0;
 }
