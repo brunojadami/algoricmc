@@ -14,7 +14,7 @@ struct Crivo{
         int primeFactor[SIZE];                  // Usado para fatoração.
         int otherFactor[SIZE];                  // Usado para fatoração.
         map<int, int> factors[SIZE];    // Usado para fatoração.
-    //vector<int> primes;           // Para guardar os primos
+	//vector<int> primes;           // Para guardar os primos
   
         Crivo();
         void generate();
@@ -34,17 +34,17 @@ Crivo::Crivo(){
 
 void Crivo::generate(){
         int p = 2;
-    //primes.reserve(SIZE/log(SIZE)); // Descomentar aqui e ali em baixo se quiser ir guardando os primos
+	//primes.reserve(SIZE/log(SIZE)); // Descomentar aqui e ali em baixo se quiser ir guardando os primos
         while(1){
                 for(; p < SIZE && isPrime[p] == 0; p++);
-        // primes.push_back(p); 
+		// primes.push_back(p); 
                 if(p*p > SIZE) 
-            {
-                   //for (int i = p+1; i < SIZE; ++i)
-                   //if (isPrime[i])
-                   //primes.push_back(i);
-                   return;
-            }
+		{
+	       		//for (int i = p+1; i < SIZE; ++i)
+	       		//if (isPrime[i])
+	       		//primes.push_back(i);
+	       		return;
+		}
                 for(int i = p*p; i < SIZE; i+=p){
                         isPrime[i] = 0;
                         primeFactor[i] = p;
@@ -125,4 +125,5 @@ int main(){
         c.printFactors(n);
         return 0;
 }
+
 
