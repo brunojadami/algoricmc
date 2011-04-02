@@ -6,7 +6,7 @@ using namespace std;
 inline void snippet(int &curMax, int elem, int &result){
 	curMax += elem;
 	curMax = max(0, curMax);
-	result = max(curMax, *result);
+	result = max(curMax, result);
 }
 
 int kadane(vector<int> &vec){
