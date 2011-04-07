@@ -1,6 +1,7 @@
 #include<cstdio>
 #include<algorithm>
 #include<vector>
+
 using namespace std;
 
 const int SIZE = 1000000 + 1;
@@ -14,7 +15,7 @@ struct Crivo{
   
         Crivo();
         void generate();
-        void fatora(int n);
+        void fatora(int n, int);
         void printFactors(int n);
 };
 
@@ -34,17 +35,17 @@ void Crivo::generate(){
         	if (isPrime[p])
         	{
 			// primes.push_back(p);
-		        for(unsigned long long i = p*p; i < SIZE; i+=p){
+		        for(unsigned long long i = (unsigned long long)p*p; i < SIZE; i+=p){ // cuidado! precisa do cast, p*p nao pode estorar ull
 		                isPrime[i] = 0;
 		                primeFactor[i] = p;
 		                otherFactor[i] = i/p;
 		        }
 		}
-		fatora(p);
+		fatora(p, p);
         }
 };
 
-void Crivo::fatora(int n)
+void Crivo::fatora(int n, int t)
 {
 	if (otherFactor[n] == -2) // ja foi fatorado
 		return;
@@ -55,20 +56,15 @@ void Crivo::fatora(int n)
 		return;
 	}
 	
-	fatora(otherFactor[n]);
+	fatora(otherFactor[n], t);
 	
 	factors[n] = factors[otherFactor[n]];
 	
-	//sort(factors[n].begin(), factors[n].end());
-	
 	vector<pair<int, int> >::iterator it = lower_bound(factors[n].begin(), factors[n].end(), make_pair(primeFactor[n], 0));
 	if (it == factors[n].end() || it->first != primeFactor[n])
-	{
-		factors[n].push_back(make_pair(primeFactor[n], 1));
-		sort(factors[n].begin(), factors[n].end());
-	}
+		factors[n].insert(it, (make_pair(primeFactor[n], 1)));
 	else
-		it->second++;
+		++it->second;
 	
 	otherFactor[n] = -2;
 }
