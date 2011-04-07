@@ -15,8 +15,8 @@ struct Crivo{
   
         Crivo();
         void generate();
-        void fatora(int n, int);
-        void printFactors(int n);
+        void fatora(int);
+        void printFactors(int);
 };
 
 Crivo::Crivo(){
@@ -41,11 +41,11 @@ void Crivo::generate(){
 		                otherFactor[i] = i/p;
 		        }
 		}
-		fatora(p, p);
+		//fatora(p); // nao precisa fatorar aqui, eh so mandar fatorar quando precisar
         }
 };
 
-void Crivo::fatora(int n, int t)
+void Crivo::fatora(int n)
 {
 	if (otherFactor[n] == -2) // ja foi fatorado
 		return;
@@ -56,7 +56,7 @@ void Crivo::fatora(int n, int t)
 		return;
 	}
 	
-	fatora(otherFactor[n], t);
+	fatora(otherFactor[n]);
 	
 	factors[n] = factors[otherFactor[n]];
 	
@@ -81,6 +81,9 @@ int main(){
 	int n;
 	
         c.generate();
+        
+        c.fatora(123456);
+        c.printFactors(123456);
         
         return 0;
 }
