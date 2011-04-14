@@ -1,8 +1,7 @@
+#include<ctype.h>
 
-
-
-bool isvowel (char ch)
-{
-    if ('A' == ch || 'a' == ch ||'E' == ch || 'e' == ch ||'I' == ch || 'i' == ch ||'O' == ch || 'o' == ch ||'U' == ch || 'u' == ch)  return true;
-    else return false;        
+bool isVowel(char ch){
+	ch = tolower(ch);
+    if('a' == ch || 'e' == ch || 'i' == ch || 'o' == ch || 'u' == ch) return true;
+    return false;        
 }
