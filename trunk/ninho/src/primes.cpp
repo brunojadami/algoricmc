@@ -2,9 +2,10 @@
 #include<algorithm>
 #include<vector>
 #include<iostream>
+#include<cstring>
 using namespace std;
 
-const int SIZE = 100 + 1;
+const int SIZE = 1000000 + 1;
 struct Crivo{
 	char isPrime[SIZE];
 	char isFactored[SIZE];
@@ -20,12 +21,12 @@ struct Crivo{
 };
 
 Crivo::Crivo(){
-	for(int i = 0; i < SIZE; i++){
-		isPrime[i] = 1;
-		isFactored[i] = 0;
-	}
+	memset(isPrime, 1, sizeof isPrime);
+	memset(isFactored, 0, sizeof isFactored);
 	isFactored[1] = 1;
 	isFactored[0] = 1;
+	isPrime[1] = 0;
+	isPrime[0] = 0;
 };
 
 void Crivo::generate(){
@@ -41,7 +42,7 @@ void Crivo::generate(){
 				primeFactor[i] = p;
 			}
 		}
-		//fatora(p); // Melhor fatorar apenas quando precisar.
+		fatora(p); // Melhor fatorar apenas quando precisar.
 	}
 };
 
@@ -80,9 +81,9 @@ int main(){
   */      
 	int n;
 	c.generate();
-	for(int i = 2; i < SIZE; i++)
-		c.fatora(i);
-	cin >> n;
-	c.printFactors(n);
+	//for(int i = 2; i < SIZE; i++)
+		//c.fatora(i);
+	//cin >> n;
+	//c.printFactors(n);
 	return 0;
 }
