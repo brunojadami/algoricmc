@@ -4,9 +4,9 @@
 
 using namespace std;
 
-#define MOD 10000000000000000LL // base (10^4), nao colocar muito grande por causa da divisao
-#define DIGS "16" // o numero de digitos decimais da base (MOD)
-#define TAM 3 // o numero deve ter no max (4*TAM) digitos
+#define MOD 10000LL // base (10^4), nao colocar muito grande por causa da divisao
+#define DIGS "4" // o numero de digitos decimais da base (MOD)
+#define TAM 1000 // o numero deve ter no max (4*TAM) digitos
 
 struct Big // bignum pra numeros positivos!
 {
