@@ -1,45 +1,42 @@
 #include<vector>
-#include<iostream>
-#include<algorithm>
 using namespace std;
 
-inline void snippet(int &curMax, int elem, int &result){
-	curMax += elem;
-	curMax = max(0, curMax);
-	result = max(curMax, result);
-}
-
-int kadane(vector<int> &vec){
-	int result = 0, curMax = 0;
-	for(int i = 0; i < vec.size(); i++)
-		snippet(curMax, vec[i], result);
-	return result;
-}
-
-#define likely(x) __builtin_expect((x),1)
-const int MAX_ROWS = 100;
-const int MAX_COLS = 100;
-int kadane2D(int matrix[][MAX_COLS], int nRows, int nCols){
-	int subSums[nRows][nCols];
-	int maxTmp, curMax, result = 0;
-
-	for(int i = 0; i < nRows; i++){
-		maxTmp = curMax = 0;
-		for(int j = 0; j < nCols; j++){
-			subSums[i][j] = matrix[i][j];
-			if(likely(i > 0)) subSums[i][j] += subSums[i-1][j];
-
-			snippet(curMax, subSums[i][j], maxTmp);
-		}
-		result = max(result, maxTmp);
+// Simple version.
+int kadane(vector<int> &array){
+	int resp = 0, tmp_resp = 0;
+	for(int i = 0; i < array.size(); i++){
+		tmp_resp = max(0, tmp_resp + array[i]);
+		resp = max(resp, tmp_resp);
 	}
+	return resp;
+}
 
-	for(int i = 0; i < nRows - 1; i++)
-		for(int k = i+1; k < nRows; k++){
-			maxTmp = curMax = 0;
-			for(int j = 0; j < nCols; j++)
-				snippet(curMax, subSums[k][j] - subSums[i][j], maxTmp);
-			result = max(result, maxTmp);
+// Version which returns also the subsequence indexes.
+// 
+// The indexes returned are of the longest subsequence.
+// Both if's can be ajusted in order to return other types of
+// indexes.
+int kadane(vector<int> &array, int &start_index, int &end_index){
+	int resp = 0, tmp_resp = 0;
+	int ind = 0;
+	bool update_flag = false;
+	for(int i =0; i < array.size(); i++){
+		if(tmp_resp + array[i] < 0){
+			update_flag = true;
+			tmp_resp = 0;
 		}
-	return result;
+		else{
+			if(update_flag)
+				ind = i;
+			update_flag = false;
+			tmp_resp = tmp_resp + array[i];
+		}
+
+		if(resp <= tmp_resp){
+			start_index = ind;
+			end_index = i;
+			resp = tmp_resp;
+		}
+	}
+	return resp;
 }
