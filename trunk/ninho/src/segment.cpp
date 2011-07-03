@@ -68,8 +68,6 @@ void changed(int a, int b, int p, int c) // c eh a posicao atualizada
 		changed(a, (a+b)/2, p*2, c);
 	else if (c <= b && c >= (a+b)/2+1) // esta a direita
 		changed((a+b)/2+1, b, p*2+1, c);
-	else // nao afeta esse intervalo
-		return;
 	update(a, b, p);
 }
 
