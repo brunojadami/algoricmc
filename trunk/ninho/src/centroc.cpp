@@ -4,6 +4,8 @@
 #include <vector>
 #include <cstring>
 
+#define ERR 1e-8
+
 using namespace std;
 
 /*
@@ -24,7 +26,7 @@ bool colinea(int p, int q, int r)
 
 bool good(pair<double, double>& a, pair<double, double>& b)
 {
-	return a.first-b.first < 1e-8 && a.first-b.first > -1e-8 && a.second-b.second < 1e-8 && a.second-b.second > -1e-8;
+	return a.first-b.first < ERR && a.first-b.first > -ERR && a.second-b.second < ERR && a.second-b.second > -ERR;
 }
 
 void findCenter(int i, int j, int k)
@@ -53,7 +55,7 @@ void findCenter(int i, int j, int k)
 	ma = (y[b]-y[a])/(x[b]-x[a]);
 	mb = (y[c]-y[b])/(x[c]-x[b]);
 	cx = (ma*mb*(y[a]-y[c])+mb*(x[a]+x[b])-ma*(x[b]+x[c]))/(2*(mb-ma));
-	if (ma == 0)
+	if (ma > -ERR && ma < ERR)
 		cy = -1/mb*(cx - (x[b]+x[c])/2) + (y[b]+y[c])/2;
 	else
 		cy = -1/ma*(cx - (x[a]+x[b])/2) + (y[a]+y[b])/2;
