@@ -6,58 +6,62 @@
 #include<math.h>
 using namespace std;
 
-const int SIZE = 1000000 + 1;
+const int SIZE = 30 + 1;
 const int LIM = sqrt(SIZE) + 1;
 
-#define bchk(arr, x) (arr[x>>6]&(1<<((x>>1)&31)))  // Bit check. chamar ifc pra testar se eh primo, se retornar falso eh primo (if composite)
-#define bset(arr, x) (arr[x>>6]|=(1<<((x>>1)&31))) // Bit set
-
 struct Crivo{
-	int isComposite[SIZE >> 6];
-	int isFactored[SIZE >> 6];
+	int composite[(SIZE >> 5) + 1];
+	int factored[(SIZE >> 5) + 1];
 
 	int primeFactor[SIZE];                  // Usado para fatoração.
 	vector<pair<int, int> > factors[SIZE];  // Usado para fatoração.
-	//vector<int> primes;					// Para guardar os primos
+	vector<int> primes;						// Para guardar os primos
 
 	Crivo();
 	void generate();
 	void fatora(int);
 	void printFactors(int);
+
+	inline int bit_check(int arr[], int n){ return arr[n >> 5] & (1 << (n & 31)); };
+	inline void bit_set(int arr[], int n){ arr[n >> 5] |= (1 << (n & 31)); };
+
+	inline int isPrime(int n){ return !bit_check(composite, n); };
+	inline int isFactored(int n){ return bit_check(factored, n); };
+	inline void setComposite(int n){ bit_set(composite, n); };
+	inline void setFactored(int n){ bit_set(factored, n); };
 };
 
-Crivo::Crivo(){
-//	memset(isPrime, 1, sizeof isPrime);
-//	memset(isFactored, 0, sizeof isFactored);
-	bset(isFactored,1);
-	bset(isFactored,0);
-
-	bset(isComposite,1);
-	bset(isComposite,0);
-};
+Crivo::Crivo(){};
 
 void Crivo::generate(){
-	//primes.reserve(SIZE/log(SIZE)); // Guarda os primos.
-	for(int p = 2; p < LIM; p++){
-		if(!bchk(isComposite,p)){
-			// primes.push_back(p); // Guarda os primos.
-			factors[p].push_back(make_pair(p,1));
-			bset(isFactored,p);
-			
-			int i = p*p;
-			if(i < 1) continue; // Overflow check.
+	//primes.reserve(SIZE/log(SIZE)); 	// Guarda os primos.
+	int p, i;
+	for(p = 2; p < LIM; p++){
+		if(isPrime(p)){
+			//primes.push_back(p); 		// Guarda os primos.
+
+			if((i = p*p) < 1) continue; // Overflow check.
 			for(; i < SIZE; i+=p){ 
-				bset(isComposite,i);
+				setComposite(i);
 				primeFactor[i] = p;
 			}
 		}
-		fatora(p); // Melhor fatorar apenas quando precisar.
+		//fatora(p); 					// Melhor fatorar apenas quando precisar.
 	}
+
+	//for(; p < SIZE; p++)				// Guarda os primos.
+	//	if(isPrime(p)) 
+	//		primes.push_back(p);
 };
 
 void Crivo::fatora(int n){
-	if(bchk(isFactored,n)) return;
-	bset(isFactored,n);
+	if(isFactored(n)) return;
+	setFactored(n);
+
+	if(isPrime(n)){
+			factors[n].push_back(make_pair(n,1));
+			return;
+	}
 
 	int otherFactor = n / primeFactor[n];
 	fatora(otherFactor);
@@ -81,18 +85,11 @@ void Crivo::printFactors(int n){
 Crivo c;
 
 int main(){
-/*	int n;
-	
-        c.generate();
-        
-        c.fatora(123456);
-        c.printFactors(123456);
-  */      
 	int n;
 	c.generate();
-	//for(int i = 2; i < SIZE; i++)
-		//c.fatora(i);
-	//cin >> n;
-	//c.printFactors(n);
+	while(scanf("%d", &n) != EOF){
+		c.fatora(n);
+		c.printFactors(n);
+	}
 	return 0;
 }
