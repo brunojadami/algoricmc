@@ -1,0 +1,24 @@
+\section{Sorting Methods}
+We compare the time used by \emph{sort} and \emph{stable\_sort}.
+\subsection{Description}
+\emph{sort} usually implements the \emph{QuickSort} algorithm, whereas 
+\emph{stable\_sort} usually implements \emph{HeapSort}.
+
+We performed $100$ consective sortings on a vector containing all integers in the range
+$[1, 10^{6}]$.
+
+\subsection{Results}
+We expected \emph{stable\_sort} to perform better, since conecutive sortings 
+would trigger QuickSort's worst case; but QuickSort still performed much better.
+
+\begin{center}
+\begin{tabular}{ | l | r |}
+\hline
+sort & 24.274 \\ \hline
+sort -O2 & 3.143 \\ \hline
+stable\_sort & 41.184 \\ \hline
+stable\_sort -O2 & 8.120 \\
+\hline
+\end{tabular}
+\end{center}
+
