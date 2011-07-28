@@ -17,24 +17,3 @@ void sieve() // da pra por numa linha..
 				isc(j);
 }
 
-// pra baxo eu fiz gambi pra pegar os primos
-vector<int> primes;
-
-int main()
-{
-	sieve();
-	primes.push_back(2);
-	primes.push_back(3);
-	for(int k = 1; k < MAX; ++k)
-	{
-		int num = k*6-1;
-		if(num < MAX && !ifc(num))
-			primes.push_back(num);
-		num = k*6+1;
-		if(num < MAX && !ifc(num))
-			primes.push_back(num);
-	}
-	
-	return 0;
-}
-
