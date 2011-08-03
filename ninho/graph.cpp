@@ -7,21 +7,32 @@
 using namespace std;
 
 struct Edge{
-	int dst, weight, cap, flow;
+	int src, dst, weight /*, cap, flow*/;
 
 	Edge(){};
-	Edge(int d, int w, int c = 0, int f = 0)
-		: dst(d), weight(w), cap(c), flow(c) {};
+	Edge(int s, int d, int w /*, int c = 0, int f = 0*/)
+		: src(s), dst(d), weight(w) /*, cap(c), flow(c)*/ {};
 
 	bool operator<(const Edge &other) const{
 		return dst < other.weight;
+	};
+
+	// Relaxes an edge.
+	bool relax(int dist[], int previous[]){
+		int tmp = dist[src] + weight;
+		if(tmp < dist[dst]){
+			dist[dst] = tmp;
+			previous[dst] = src;
+			return true;
+		}
+		return false;
 	};
 };
 
 const int MAX_NODES = 2010;
 const int INF = 1000000;
 
-#define foreach(V) for(vector<Edge>::iterator e = (V).begin(); e != (V).end(); e++)
+#define foreach_edge(V) for(vector<Edge>::iterator e = (V).begin(); e != (V).end(); e++)
 
 struct Graph{
 	vector<Edge> adj[MAX_NODES];
@@ -33,12 +44,14 @@ struct Graph{
 		nNodes = n;
    	};
 
-	void addEdge(int src, Edge e){ adj[src].push_back(e); };
+	void addEdge(int src, int dst, int w /*, int c = 0, int f = 0*/){
+		adj[src].push_back(Edge(src,dst,w /*,c,f*/)); 
+	};
 	
 	// DFS that colors the graph. Colors are not overridden. 0 means no color.
 	void dfs(int src, int color, int visited[]){
 		visited[src] = color;
-		foreach(adj[src])
+		foreach_edge(adj[src])
 			if(!visited[e->dst])
 				dfs(e->dst, color, visited);
 	};
@@ -58,14 +71,9 @@ struct Graph{
 			if(/* current == dst || */ dist[current] == INF) return;
 			if(previous[current] != -1) continue; // Already processed.
 
-			foreach(adj[current]){
-				int tmp = dist[current] + e->weight;
-				if(tmp < dist[e->dst]){
-					dist[e->dst] = tmp;
-					previous[e->dst] = current;
+			foreach(adj[current])
+				if(e->relax(dist, previous))
 					fila.push(make_pair(-dist[e->dst], e->dst));
-				}
-			}
 		}
 	};
 
@@ -77,18 +85,12 @@ struct Graph{
 		}
 		dist[src] = 0;
 
-		for(int k = 1; k <= nNodes; k++){
+		for(int k = 1; k <= nNodes; k++)
 			for(int i = 0; i < nNodes; i++)
-				foreach(adj[i]){
-					int tmp = dist[i] + e->weight;
-					if(tmp < dist[e->dst]){
-						if(k == nNodes) 	// Negative cycle detected.
-							return true;
-						dist[e->dst] = tmp;
-						previous[e->dst] = i;
-					}
-				}
-		}
+				foreach(adj[i])
+					if(e->relax(dist, previous) && k == nNodes)
+						return true;	// Negative cycle detected.
 		return false;
 	};
 };
+
