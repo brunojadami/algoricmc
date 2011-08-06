@@ -18,7 +18,7 @@
 #define LL long long
 
 // modulo pra qualquer numero (positivo ou negativo).. as funcoes abaixo so utilizam numeros positivos
-int mod(int a, int m)
+LL mod(LL a, LL m)
 {
 	return (a%m+m)%m;
 }
