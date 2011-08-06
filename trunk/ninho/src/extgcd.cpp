@@ -20,7 +20,7 @@
 // modulo pra qualquer numero (positivo ou negativo).. as funcoes abaixo so utilizam numeros positivos
 int mod(int a, int m)
 {
-  return (a%m+m)%m;
+	return (a%m+m)%m;
 }
 
 // normal gcd, a e b positivos
