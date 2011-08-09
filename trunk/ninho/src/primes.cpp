@@ -6,7 +6,7 @@
 #include<math.h>
 using namespace std;
 
-const int SIZE = 30 + 1;
+const int SIZE = 10000000 + 1;
 const int LIM = sqrt(SIZE) + 1;
 
 struct Crivo{
@@ -35,13 +35,12 @@ Crivo::Crivo(){};
 
 void Crivo::generate(){
 	//primes.reserve(SIZE/log(SIZE)); 	// Guarda os primos.
-	int p, i;
+	long long p, i;
 	for(p = 2; p < LIM; p++){
 		if(isPrime(p)){
 			//primes.push_back(p); 		// Guarda os primos.
 
-			if((i = p*p) < 1) continue; // Overflow check.
-			for(; i < SIZE; i+=p){ 
+			for(i = p*p; i < SIZE; i += p){ 
 				setComposite(i);
 				primeFactor[i] = p;
 			}
@@ -87,9 +86,9 @@ Crivo c;
 int main(){
 	int n;
 	c.generate();
-	while(scanf("%d", &n) != EOF){
+	/*while(scanf("%d", &n) != EOF){
 		c.fatora(n);
 		c.printFactors(n);
-	}
+	}*/
 	return 0;
 }
