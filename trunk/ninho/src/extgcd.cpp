@@ -6,9 +6,9 @@
 	- se c = gcd(a, b) usar o euclidiano extendido
 	- se gcd(a, b) nao divide c nao ha resposta
 	- se gcd(a, b) divide c ha resposta: 
-		eh so usar o euclidiano extendido e mutiplicar a resposta (x, y) por c/gcd(a, b)
-	- se a ou b forem negativos, fazer com o abs deles e multiplicar a
-		respectiva resposta por -1 (x se a for negativo e y se b for negativo)
+		eh so usar o euclidiano extendido e mutiplicar (x0, y0) por c/gcd(a, b)
+	- se a ou b forem negativos, fazer com o modulo deles e multiplicar a
+		respectiva resposta (xi, yi) por -1 (x se a for negativo e y se b for negativo)
 	- vai achar a solucao que minimiza |x|+|y| primeiro e x <= y segundo, para solucao geral:
 	
 		x = x0 + b*t/g                   t eh inteiro!!
